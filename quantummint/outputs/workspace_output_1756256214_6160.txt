@@ -1,0 +1,26 @@
+# Server Configuration
+PORT=3004
+NODE_ENV=development
+
+# MongoDB Configuration (Docker internal network name)
+MONGODB_URI=mongodb://mongodb:27017/quantummint
+
+# Redis Configuration (Docker internal network name - for token caching)
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# RabbitMQ (AMQP) Configuration (Docker internal network name)
+RABBITMQ_URI=amqp://rabbitmq:5672
+
+# Orange Money API Credentials (Replace with your actual credentials)
+ORANGE_MONEY_API_URL=https://api.orange-money.com
+ORANGE_MONEY_TOKEN_URL=https://oauth.orange-money.com/token # Example token endpoint
+ORANGE_MONEY_CLIENT_ID=your_orange_money_client_id
+ORANGE_MONEY_CLIENT_SECRET=your_orange_money_client_secret
+ORANGE_MONEY_WEBHOOK_SECRET=your_orange_money_webhook_secret
+
+# AfriMoney API Credentials (Replace with your actual credentials)
+AFRIMONEY_API_URL=https://api.afrimoney.com
+AFRIMONEY_API_KEY=your_afrimoney_api_key
+AFRIMONEY_API_SECRET=your_afrimoney_api_secret
+AFRIMONEY_WEBHOOK_SECRET=your_afrimoney_webhook_secret

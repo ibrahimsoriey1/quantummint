@@ -1,0 +1,200 @@
+# Money Generation System Implementation
+
+This document outlines the implementation of the core money generation functionality for the Digital Money Generation System.
+
+## Overview
+
+The money generation system is responsible for creating digital money in user wallets according to predefined rules and limits. It includes algorithms for generating money, validation mechanisms, and security controls to prevent abuse.
+
+## Key Components
+
+1. Generation algorithms and methods
+2. Validation and verification processes
+3. Generation limits and controls
+4. Transaction recording and audit trails
+5. Integration with wallet system
+
+## Implementation Details
+
+### 1. Money Generation Service
+
+```javascript
+// money-generation/src/services/generation.service.js
+
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const GenerationRecord = require('../models/generation.model');
+const Wallet = require('../models/wallet.model');
+const Transaction = require('../models/transaction.model');
+const { redisClient } = require('../config/redis.config');
+const { publishEvent } = require('../utils/event.util');
+const logger = require('../utils/logger.util');
+const { GenerationError } = require('../utils/errors.util');
+
+/**
+ * Money Generation Service
+ * Handles the core functionality of generating digital money
+ */
+class MoneyGenerationService {
+  /**
+   * Generate money in a user's wallet
+   * @param {string} userId - User ID
+   * @param {string} walletId - Wallet ID
+   * @param {number} amount - Amount to generate
+   * @param {string} generationMethod - Method of generation (standard, accelerated, premium)
+   * @param {Object} metadata - Additional metadata for the generation
+   * @returns {Promise<Object>} Generation record
+   */
+  async generateMoney(userId, walletId, amount, generationMethod, metadata = {}) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+      // Validate inputs
+      if (!userId || !walletId || !amount || !generationMethod) {
+        throw new GenerationError('Missing required parameters', 'INVALID_PARAMETERS');
+      }
+      
+      if (amount <= 0) {
+        throw new GenerationError('Amount must be greater than zero', 'INVALID_AMOUNT');
+      }
+      
+      // Get wallet
+      const wallet = await Wallet.findOne({ _id: walletId, userId }).session(session);
+      
+      if (!wallet) {
+        throw new GenerationError('Wallet not found', 'WALLET_NOT_FOUND');
+      }
+      
+      if (wallet.status !== 'active') {
+        throw new GenerationError(`Wallet is ${wallet.status}`, 'WALLET_INACTIVE');
+      }
+      
+      // Check generation limits
+      await this._checkGenerationLimits(wallet, amount, session);
+      
+      // Create generation record
+      const generationId = new mongoose.Types.ObjectId();
+      const generationRecord = new GenerationRecord({
+        _id: generationId,
+        userId,
+        walletId,
+        amount,
+        currency: wallet.currency,
+        generationMethod,
+        generationParams: this._getGenerationParams(generationMethod, amount),
+        status: 'pending',
+        metadata
+      });
+      
+      await generationRecord.save({ session });
+      
+      // Generate verification code
+      const verificationCode = this._generateVerificationCode();
+      
+      // Store verification code in Redis with 10-minute expiry
+      await redisClient.set(
+        `generation_verification:${generationId.toString()}`,
+        verificationCode,
+        'EX',
+        600
+      );
+      
+      // Publish event for verification
+      await publishEvent('generation.verification_required', {
+        generationId: generationId.toString(),
+        userId,
+        walletId,
+        amount,
+        currency: wallet.currency,
+        generationMethod,
+        verificationCode
+      });
+      
+      // Update wallet generation limits
+      wallet.dailyGenerated += amount;
+      wallet.monthlyGenerated += amount;
+      wallet.totalGenerated += amount;
+      wallet.lastGenerationDate = new Date();
+      
+      await wallet.save({ session });
+      
+      await session.commitTransaction();
+      
+      logger.info(`Money generation initiated: ${amount} ${wallet.currency} for wallet ${walletId}`);
+      
+      return {
+        generationId: generationId.toString(),
+        walletId,
+        amount,
+        currency: wallet.currency,
+        status: 'pending',
+        createdAt: generationRecord.createdAt
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      
+      if (error instanceof GenerationError) {
+        logger.warn(`Generation error: ${error.message} (${error.code})`);
+        throw error;
+      }
+      
+      logger.error(`Money generation error: ${error.message}`);
+      throw new GenerationError('Failed to generate money', 'GENERATION_FAILED');
+    } finally {
+      session.endSession();
+    }
+  }
+  
+  /**
+   * Verify a generation request
+   * @param {string} generationId - Generation record ID
+   * @param {string} verificationCode - Verification code
+   * @returns {Promise<Object>} Updated generation record
+   */
+  async verifyGeneration(generationId, verificationCode) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+      // Get generation record
+      const generationRecord = await GenerationRecord.findById(generationId).session(session);
+      
+      if (!generationRecord) {
+        throw new GenerationError('Generation record not found', 'RECORD_NOT_FOUND');
+      }
+      
+      if (generationRecord.status !== 'pending') {
+        throw new GenerationError(`Generation is already ${generationRecord.status}`, 'INVALID_STATUS');
+      }
+      
+      // Get stored verification code
+      const storedCode = await redisClient.get(`generation_verification:${generationId}`);
+      
+      if (!storedCode) {
+        throw new GenerationError('Verification code expired', 'CODE_EXPIRED');
+      }
+      
+      // Verify code
+      if (verificationCode !== storedCode) {
+        throw new GenerationError('Invalid verification code', 'INVALID_CODE');
+      }
+      
+      // Get wallet
+      const wallet = await Wallet.findById(generationRecord.walletId).session(session);
+      
+      if (!wallet) {
+        throw new GenerationError('Wallet not found', 'WALLET_NOT_FOUND');
+      }
+      
+      // Update generation record
+      generationRecord.status = 'completed';
+      generationRecord.verificationStatus = 'verified';
+      generationRecord.verifiedAt = new Date();
+      
+      await generationRecord.save({ session });
+      
+      // Update wallet balance
+      wallet.balance += generationRecord.amount;
+      await wallet.save({ session });
+      

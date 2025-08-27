@@ -1,0 +1,11 @@
+total 64
+drwxr-xr-x 2 root root  4096 Aug 27 01:19 .
+drwxr-xr-x 3 root root    48 Aug 27 01:17 ..
+-rw-r--r-- 1 root root  7047 Aug 27 01:19 adminSlice.js
+-rw-r--r-- 1 root root 13925 Aug 27 01:17 authSlice.js
+-rw-r--r-- 1 root root  4378 Aug 27 01:18 cashOutSlice.js
+-rw-r--r-- 1 root root  4904 Aug 27 01:17 generationSlice.js
+-rw-r--r-- 1 root root  3029 Aug 27 01:19 kycSlice.js
+-rw-r--r-- 1 root root  4336 Aug 27 01:19 notificationSlice.js
+-rw-r--r-- 1 root root  2645 Aug 27 01:18 transactionSlice.js
+-rw-r--r-- 1 root root  2742 Aug 27 01:17 walletSlice.js

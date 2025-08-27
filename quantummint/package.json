@@ -1,0 +1,22 @@
+{
+  "name": "digital-money-system",
+  "version": "1.0.0",
+  "description": "Digital Money Generation System",
+  "scripts": {
+    "start:api-gateway": "cd api-gateway && npm run dev",
+    "start:auth": "cd auth-service && npm run dev",
+    "start:generation": "cd money-generation && npm run dev",
+    "start:transaction": "cd transaction-service && npm run dev",
+    "start:payment": "cd payment-integration && npm run dev",
+    "start:frontend": "cd frontend && npm start",
+    "start:all": "concurrently &quot;npm run start:api-gateway&quot; &quot;npm run start:auth&quot; &quot;npm run start:generation&quot; &quot;npm run start:transaction&quot; &quot;npm run start:payment&quot; &quot;npm run start:frontend&quot;",
+    "install:all": "npm install && cd api-gateway && npm install && cd ../auth-service && npm install && cd ../money-generation && npm install && cd ../transaction-service && npm install && cd ../payment-integration && npm install && cd ../frontend && npm install && cd ../shared && npm install",
+    "test:all": "cd api-gateway && npm test && cd ../auth-service && npm test && cd ../money-generation && npm test && cd ../transaction-service && npm test && cd ../payment-integration && npm test && cd ../frontend && npm test",
+    "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
+    "docker:build": "docker-compose -f docker/docker-compose.yml build"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  }
+}

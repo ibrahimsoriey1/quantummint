@@ -1,0 +1,43 @@
+{
+  "name": "quantummint",
+  "version": "1.0.0",
+  "description": "A comprehensive system for generating digital money and enabling cash-out functionality",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm run install:api-gateway && npm run install:auth-service && npm run install:money-generation && npm run install:transaction-service && npm run install:payment-integration && npm run install:frontend",
+    "install:api-gateway": "cd api-gateway && npm install",
+    "install:auth-service": "cd auth-service && npm install",
+    "install:money-generation": "cd money-generation && npm install",
+    "install:transaction-service": "cd transaction-service && npm install",
+    "install:payment-integration": "cd payment-integration && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "start:all": "concurrently &quot;npm run start:api-gateway&quot; &quot;npm run start:auth-service&quot; &quot;npm run start:money-generation&quot; &quot;npm run start:transaction-service&quot; &quot;npm run start:payment-integration&quot;",
+    "start:api-gateway": "cd api-gateway && npm run dev",
+    "start:auth-service": "cd auth-service && npm run dev",
+    "start:money-generation": "cd money-generation && npm run dev",
+    "start:transaction-service": "cd transaction-service && npm run dev",
+    "start:payment-integration": "cd payment-integration && npm run dev",
+    "start:frontend": "cd frontend && npm run dev",
+    "test:all": "concurrently &quot;npm run test:api-gateway&quot; &quot;npm run test:auth-service&quot; &quot;npm run test:money-generation&quot; &quot;npm run test:transaction-service&quot; &quot;npm run test:payment-integration&quot; &quot;npm run test:frontend&quot;",
+    "test:api-gateway": "cd api-gateway && npm test",
+    "test:auth-service": "cd auth-service && npm test",
+    "test:money-generation": "cd money-generation && npm test",
+    "test:transaction-service": "cd transaction-service && npm test",
+    "test:payment-integration": "cd payment-integration && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "keywords": [
+    "digital-money",
+    "payment-integration",
+    "fintech",
+    "microservices"
+  ],
+  "author": "NinjaTech AI",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
