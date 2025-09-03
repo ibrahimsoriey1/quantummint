@@ -3,6 +3,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
+const csurf = require('csurf');
+const swaggerUi = require('swagger-ui-express');
+const { specs } = require('./docs/swagger');
 const { connectDB } = require('./config/database');
 const { logger } = require('./utils/logger');
 const { requestIdMiddleware } = require('../../shared');
@@ -35,8 +39,17 @@ app.use((req, res, next) => {
 });
 
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(cookieParser());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } })); // HTTP request logging
 app.use(compression()); // Compress responses
+// CSRF protection (disabled for webhooks)
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith('/api/webhooks')) return next();
+  return csurf({ cookie: true, ignoreMethods: ['GET', 'HEAD', 'OPTIONS'] })(req, res, next);
+});
+
+// Swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
 app.use('/api/payments', paymentRoutes);

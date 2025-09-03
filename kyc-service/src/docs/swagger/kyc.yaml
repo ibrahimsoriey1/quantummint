@@ -1,0 +1,28 @@
+paths:
+  /kyc/profile:
+    get:
+      tags: [KYC]
+      summary: Get current user's KYC profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KYCProfile'
+    post:
+      tags: [KYC]
+      summary: Create or update KYC profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KYCProfile'
+      responses:
+        '200':
+          description: Updated
+
+

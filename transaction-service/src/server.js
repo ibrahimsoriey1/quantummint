@@ -2,6 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const csurf = require('csurf');
+const swaggerUi = require('swagger-ui-express');
+const { specs } = require('./docs/swagger');
 const compression = require('compression');
 const { connectDB } = require('./config/database');
 const { logger } = require('./utils/logger');
@@ -23,8 +27,13 @@ app.use(requestIdMiddleware); // Correlation ID
 app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(cookieParser());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } })); // HTTP request logging
 app.use(compression()); // Compress responses
+app.use(csurf({ cookie: true, ignoreMethods: ['GET', 'HEAD', 'OPTIONS'] }));
+
+// Swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
 app.use('/api/transactions', transactionRoutes);

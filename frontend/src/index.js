@@ -6,6 +6,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { initCsrf } from './utils/csrf';
+
+initCsrf();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

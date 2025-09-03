@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
+const csurf = require('csurf');
 const swaggerUi = require('swagger-ui-express');
 const { logger } = require('./utils/logger');
 const { setupRedis } = require('./config/redis');
@@ -47,9 +49,20 @@ app.use(requestIdMiddleware); // Correlation ID
 app.use(cors(corsOptions)); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(cookieParser()); // Parse cookies for CSRF token storage
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } })); // HTTP request logging
 app.use(compression()); // Compress responses
 app.use(limiter); // Rate limiting
+
+// CSRF protection for state-changing routes (skip for GET, HEAD, OPTIONS)
+app.use(
+  csurf({ cookie: true, ignoreMethods: ['GET', 'HEAD', 'OPTIONS'] })
+);
+
+// Provide CSRF token for clients
+app.get('/csrf-token', (req, res) => {
+  return res.status(200).json({ csrfToken: req.csrfToken() });
+});
 
 // Advanced security middleware
 app.use(securityHeadersMiddleware); // Additional security headers

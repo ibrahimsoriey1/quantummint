@@ -1,0 +1,17 @@
+paths:
+  /verifications:
+    post:
+      tags: [Verifications]
+      summary: Start verification
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Verification'
+      responses:
+        '202':
+          description: Accepted
+
+

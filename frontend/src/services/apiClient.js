@@ -1,7 +1,11 @@
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
-const api = axios.create({ baseURL: '/api' });
+const api = axios.create({ baseURL: '/api', withCredentials: true });
+
+// CSRF defaults (must match server)
+api.defaults.xsrfCookieName = 'XSRF-TOKEN';
+api.defaults.xsrfHeaderName = 'X-CSRF-Token';
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');

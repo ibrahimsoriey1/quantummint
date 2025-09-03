@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install service dependencies
+        run: |
+          cd api-gateway && npm ci && cd ..
+          cd auth-service && npm ci && cd ..
+          cd money-generation && npm ci && cd ..
+          cd transaction-service && npm ci && cd ..
+          cd payment-integration && npm ci && cd ..
+          cd kyc-service && npm ci && cd ..
+          cd frontend && npm ci && cd ..
+
+      - name: Run tests
+        run: |
+          cd api-gateway && npm test --silent && cd ..
+          cd auth-service && npm test --silent && cd ..
+          cd money-generation && npm test --silent && cd ..
+          cd transaction-service && npm test --silent && cd ..
+          cd payment-integration && npm test --silent && cd ..
+          cd kyc-service && npm test --silent && cd ..
+
+

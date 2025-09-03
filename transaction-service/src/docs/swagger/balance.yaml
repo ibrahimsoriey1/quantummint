@@ -1,0 +1,21 @@
+paths:
+  /balances/{walletId}:
+    get:
+      tags: [Balances]
+      summary: Get wallet balance
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: walletId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+
+

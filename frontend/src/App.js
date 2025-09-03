@@ -31,21 +31,6 @@ import PaymentMethods from './pages/PaymentMethods';
 // Error Pages
 import NotFound from './pages/errors/NotFound';
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-  
-  return children;
-};
-
 function App() {
   return (
     <ThemeProvider theme={theme}>

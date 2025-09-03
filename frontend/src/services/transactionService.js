@@ -1,28 +1,3 @@
-import api from './apiClient';
-import { handleApiError } from '../utils/errorHandler';
-
-const baseUrl = '/transactions';
-
-export const createTransaction = async (data, idempotencyKey) => {
-  try {
-    const res = await api.post(baseUrl, data, {
-      headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}
-    });
-    return res.data;
-  } catch (error) {
-    throw handleApiError(error);
-  }
-};
-
-export const getTransactions = async (params) => {
-  try {
-    const res = await api.get(baseUrl, { params });
-    return res.data;
-  } catch (error) {
-    throw handleApiError(error);
-  }
-};
-
 import axios from 'axios';
 import { handleApiError } from '../utils/errorHandler';
 

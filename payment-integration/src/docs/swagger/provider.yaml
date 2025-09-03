@@ -1,0 +1,11 @@
+paths:
+  /providers:
+    get:
+      tags: [Providers]
+      summary: List providers
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+
+

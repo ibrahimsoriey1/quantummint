@@ -1,0 +1,39 @@
+paths:
+  /payments:
+    post:
+      tags: [Payments]
+      summary: Create a payment intent
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '201':
+          description: Created
+    get:
+      tags: [Payments]
+      summary: List payments
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+
+  /payments/{id}:
+    get:
+      tags: [Payments]
+      summary: Get payment by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+

@@ -119,7 +119,7 @@ const Register = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  const getStepContent = (step) => {
+  const getStepContent = (step, errors, touched, isSubmitting) => {
     switch (step) {
       case 0:
         return (
@@ -369,7 +369,7 @@ const Register = () => {
       >
         {({ errors, touched, isSubmitting, validateForm }) => (
           <Form>
-            {getStepContent(activeStep)}
+            {getStepContent(activeStep, errors, touched, isSubmitting)}
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
               <Button

@@ -28,7 +28,11 @@
     "redis": "^4.6.5",
     "stripe": "^12.0.0",
     "uuid": "^9.0.1",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2",
+    "cookie-parser": "^1.4.6",
+    "csurf": "^1.11.0"
   },
   "devDependencies": {
     "eslint": "^8.36.0",
