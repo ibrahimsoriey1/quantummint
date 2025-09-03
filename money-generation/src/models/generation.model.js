@@ -2,8 +2,15 @@ const mongoose = require('mongoose');
 
 const generationSchema = new mongoose.Schema({
   userId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: [true, 'User ID is required'],
+    index: true
+  },
+  walletId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wallet',
+    required: [true, 'Wallet ID is required'],
     index: true
   },
   amount: {
@@ -11,14 +18,23 @@ const generationSchema = new mongoose.Schema({
     required: [true, 'Amount is required'],
     min: [0.01, 'Amount must be at least 0.01']
   },
-  method: {
+  currency: {
     type: String,
-    enum: ['standard', 'accelerated', 'premium'],
+    required: [true, 'Currency is required'],
+    default: 'USD'
+  },
+  generationMethod: {
+    type: String,
+    enum: ['standard', 'accelerated', 'premium', 'instant', 'scheduled'],
     required: [true, 'Generation method is required']
+  },
+  generationParams: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
   },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'failed', 'verified', 'rejected'],
+    enum: ['pending', 'processing', 'completed', 'failed', 'verified', 'rejected', 'cancelled'],
     default: 'pending'
   },
   verificationStatus: {
@@ -31,7 +47,8 @@ const generationSchema = new mongoose.Schema({
     default: null
   },
   verifiedBy: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     default: null
   },
   verifiedAt: {
@@ -39,7 +56,8 @@ const generationSchema = new mongoose.Schema({
     default: null
   },
   transactionId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Transaction',
     default: null
   },
   kycLevel: {
@@ -54,6 +72,28 @@ const generationSchema = new mongoose.Schema({
   userAgent: {
     type: String,
     default: null
+  },
+  deviceInfo: {
+    type: String,
+    default: null
+  },
+  location: {
+    latitude: {
+      type: Number,
+      default: null
+    },
+    longitude: {
+      type: Number,
+      default: null
+    },
+    country: {
+      type: String,
+      default: null
+    },
+    city: {
+      type: String,
+      default: null
+    }
   },
   metadata: {
     type: mongoose.Schema.Types.Mixed,
@@ -73,9 +113,11 @@ const generationSchema = new mongoose.Schema({
 
 // Indexes for faster queries
 generationSchema.index({ userId: 1, createdAt: -1 });
+generationSchema.index({ walletId: 1 });
 generationSchema.index({ status: 1 });
-generationSchema.index({ method: 1 });
+generationSchema.index({ generationMethod: 1 });
 generationSchema.index({ verificationStatus: 1 });
+generationSchema.index({ createdAt: -1 });
 
 // Create model from schema
 const Generation = mongoose.model('Generation', generationSchema);

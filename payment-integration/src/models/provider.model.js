@@ -7,17 +7,102 @@ const providerSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
-  code: {
-    type: String,
-    required: [true, 'Provider code is required'],
-    unique: true,
-    trim: true,
-    enum: ['stripe', 'orange_money', 'afrimoney']
-  },
   type: {
     type: String,
     enum: ['payment', 'withdrawal', 'both'],
     default: 'both'
+  },
+  apiEndpoint: {
+    type: String,
+    required: [true, 'API endpoint is required']
+  },
+  apiVersion: {
+    type: String,
+    default: 'v1'
+  },
+  authType: {
+    type: String,
+    enum: ['api_key', 'oauth', 'basic_auth', 'bearer_token', 'custom'],
+    default: 'api_key'
+  },
+  credentials: {
+    clientId: {
+      type: String,
+      default: null
+    },
+    clientSecret: {
+      type: String,
+      default: null
+    },
+    apiKey: {
+      type: String,
+      default: null
+    },
+    merchantId: {
+      type: String,
+      default: null
+    },
+    publicKey: {
+      type: String,
+      default: null
+    },
+    privateKey: {
+      type: String,
+      default: null
+    }
+  },
+  webhookUrl: {
+    type: String,
+    default: null
+  },
+  webhookSecret: {
+    type: String,
+    default: null
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'maintenance', 'deprecated'],
+    default: 'active'
+  },
+  supportedCurrencies: {
+    type: [String],
+    default: ['USD']
+  },
+  transactionLimits: {
+    minAmount: {
+      type: Number,
+      default: 0.01
+    },
+    maxAmount: {
+      type: Number,
+      default: 10000
+    },
+    dailyLimit: {
+      type: Number,
+      default: 50000
+    },
+    monthlyLimit: {
+      type: Number,
+      default: 500000
+    }
+  },
+  fees: {
+    fixedFee: {
+      type: Number,
+      default: 0
+    },
+    percentageFee: {
+      type: Number,
+      default: 0
+    },
+    minFee: {
+      type: Number,
+      default: 0
+    },
+    maxFee: {
+      type: Number,
+      default: 100
+    }
   },
   description: {
     type: String,
@@ -27,36 +112,13 @@ const providerSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
   supportedCountries: {
     type: [String],
     default: []
   },
-  supportedCurrencies: {
-    type: [String],
-    default: []
-  },
-  minAmount: {
-    type: Number,
-    default: 0.01
-  },
-  maxAmount: {
-    type: Number,
-    default: 10000
-  },
   processingTime: {
     type: String,
     default: 'Instant'
-  },
-  feeStructure: {
-    type: mongoose.Schema.Types.Mixed,
-    default: {
-      type: 'percentage',
-      value: 0
-    }
   },
   requiredKycLevel: {
     type: String,
@@ -66,10 +128,6 @@ const providerSchema = new mongoose.Schema({
   config: {
     type: mongoose.Schema.Types.Mixed,
     default: {}
-  },
-  webhookEndpoint: {
-    type: String,
-    default: null
   },
   metadata: {
     type: mongoose.Schema.Types.Mixed,
@@ -86,6 +144,13 @@ const providerSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Indexes for faster queries
+providerSchema.index({ name: 1 }, { unique: true });
+providerSchema.index({ status: 1 });
+providerSchema.index({ type: 1 });
+providerSchema.index({ supportedCurrencies: 1 });
+providerSchema.index({ supportedCountries: 1 });
 
 // Create model from schema
 const Provider = mongoose.model('Provider', providerSchema);

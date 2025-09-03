@@ -18,3 +18,4 @@ Provides APIs to create and list transactions, and to query wallet balances.
 
 ## Errors
 - Standard JSON error with `success`, `status`, and `message` fields.
+

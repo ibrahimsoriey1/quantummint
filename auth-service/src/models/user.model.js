@@ -3,6 +3,15 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: [true, 'Username is required'],
+    unique: true,
+    trim: true,
+    minlength: [3, 'Username must be at least 3 characters long'],
+    maxlength: [30, 'Username cannot exceed 30 characters'],
+    match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores']
+  },
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -11,11 +20,15 @@ const userSchema = new mongoose.Schema({
     trim: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email address']
   },
-  password: {
+  passwordHash: {
     type: String,
     required: [true, 'Password is required'],
     minlength: [8, 'Password must be at least 8 characters long'],
     select: false // Don't include password in query results by default
+  },
+  salt: {
+    type: String,
+    select: false
   },
   firstName: {
     type: String,
@@ -29,12 +42,77 @@ const userSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
+    trim: true,
+    match: [/^\+?[1-9]\d{1,14}$/, 'Please provide a valid phone number']
+  },
+  countryCode: {
+    type: String,
+    default: '+1',
     trim: true
+  },
+  dateOfBirth: {
+    type: Date,
+    required: [true, 'Date of birth is required']
+  },
+  address: {
+    street: {
+      type: String,
+      default: ''
+    },
+    city: {
+      type: String,
+      default: ''
+    },
+    state: {
+      type: String,
+      default: ''
+    },
+    postalCode: {
+      type: String,
+      default: ''
+    },
+    country: {
+      type: String,
+      required: [true, 'Country is required']
+    }
+  },
+  idVerification: {
+    idType: {
+      type: String,
+      enum: ['passport', 'drivers_license', 'national_id', 'other'],
+      default: null
+    },
+    idNumber: {
+      type: String,
+      default: null
+    },
+    idExpiryDate: {
+      type: Date,
+      default: null
+    },
+    verificationStatus: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected', 'expired'],
+      default: 'pending'
+    },
+    verificationDate: {
+      type: Date,
+      default: null
+    },
+    verifiedBy: {
+      type: String,
+      default: null
+    }
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'super_admin'],
+    enum: ['user', 'admin', 'super_admin', 'moderator', 'support'],
     default: 'user'
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'suspended', 'banned', 'pending_verification'],
+    default: 'pending_verification'
   },
   isEmailVerified: {
     type: Boolean,
@@ -92,12 +170,13 @@ const userSchema = new mongoose.Schema({
 // Pre-save hook to hash password before saving
 userSchema.pre('save', async function(next) {
   // Only hash the password if it's modified or new
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('passwordHash')) return next();
   
   try {
     // Generate salt and hash password
     const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    this.salt = salt;
+    this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
     next();
   } catch (error) {
     next(error);
@@ -106,7 +185,7 @@ userSchema.pre('save', async function(next) {
 
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return await bcrypt.compare(candidatePassword, this.passwordHash);
 };
 
 // Method to generate email verification token
@@ -167,6 +246,15 @@ userSchema.methods.removeRefreshToken = function(token) {
 userSchema.virtual('fullName').get(function() {
   return `${this.firstName} ${this.lastName}`;
 });
+
+// Indexes for faster queries
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ username: 1 }, { unique: true });
+userSchema.index({ phoneNumber: 1 }, { unique: true, sparse: true });
+userSchema.index({ status: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ kycLevel: 1 });
+userSchema.index({ createdAt: -1 });
 
 // Create model from schema
 const User = mongoose.model('User', userSchema);

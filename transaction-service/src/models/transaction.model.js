@@ -1,20 +1,38 @@
 const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
-  userId: {
+  transactionType: {
     type: String,
-    required: [true, 'User ID is required'],
+    enum: ['generation', 'transfer', 'payment', 'withdrawal', 'refund', 'fee', 'bonus', 'adjustment', 'deposit', 'cashout'],
+    required: [true, 'Transaction type is required']
+  },
+  sourceWalletId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wallet',
+    default: null,
     index: true
   },
-  type: {
-    type: String,
-    enum: ['generation', 'transfer', 'payment', 'withdrawal', 'refund', 'fee', 'bonus', 'adjustment'],
-    required: [true, 'Transaction type is required']
+  destinationWalletId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wallet',
+    default: null,
+    index: true
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: [true, 'User ID is required'],
+    index: true
   },
   amount: {
     type: Number,
     required: [true, 'Amount is required'],
     min: [0.01, 'Amount must be at least 0.01']
+  },
+  currency: {
+    type: String,
+    required: [true, 'Currency is required'],
+    default: 'USD'
   },
   fee: {
     type: Number,
@@ -25,13 +43,9 @@ const transactionSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Net amount is required']
   },
-  currency: {
-    type: String,
-    default: 'USD'
-  },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'failed', 'cancelled', 'refunded'],
+    enum: ['pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded', 'expired'],
     default: 'pending'
   },
   description: {
@@ -40,7 +54,9 @@ const transactionSchema = new mongoose.Schema({
   },
   reference: {
     type: String,
-    default: null
+    default: null,
+    unique: true,
+    sparse: true
   },
   method: {
     type: String,
@@ -51,7 +67,8 @@ const transactionSchema = new mongoose.Schema({
     default: null
   },
   recipientId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     default: null
   },
   recipientInfo: {
@@ -66,8 +83,34 @@ const transactionSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  deviceInfo: {
+    type: String,
+    default: null
+  },
   userAgent: {
     type: String,
+    default: null
+  },
+  location: {
+    latitude: {
+      type: Number,
+      default: null
+    },
+    longitude: {
+      type: Number,
+      default: null
+    },
+    country: {
+      type: String,
+      default: null
+    },
+    city: {
+      type: String,
+      default: null
+    }
+  },
+  completedAt: {
+    type: Date,
     default: null
   },
   createdAt: {
@@ -84,9 +127,14 @@ const transactionSchema = new mongoose.Schema({
 
 // Indexes for faster queries
 transactionSchema.index({ userId: 1, createdAt: -1 });
-transactionSchema.index({ type: 1 });
+transactionSchema.index({ sourceWalletId: 1 });
+transactionSchema.index({ destinationWalletId: 1 });
+transactionSchema.index({ transactionType: 1 });
 transactionSchema.index({ status: 1 });
+transactionSchema.index({ createdAt: -1 });
 transactionSchema.index({ reference: 1 });
+transactionSchema.index({ provider: 1 });
+transactionSchema.index({ currency: 1 });
 
 // Create model from schema
 const Transaction = mongoose.model('Transaction', transactionSchema);

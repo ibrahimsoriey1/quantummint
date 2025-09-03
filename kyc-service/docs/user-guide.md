@@ -16,3 +16,4 @@ Manages KYC profiles, document uploads, and verification flows.
 
 ## Authentication
 - Bearer JWT via `Authorization: Bearer <token>`
+
