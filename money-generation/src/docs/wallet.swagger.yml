@@ -1,0 +1,304 @@
+paths:
+  /wallets/my-wallet:
+    get:
+      tags:
+        - Wallet
+      summary: Get user wallet
+      description: Get or create a wallet for the current user
+      operationId: getUserWallet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Wallet retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  wallet:
+                    $ref: '#/components/schemas/Wallet'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/method:
+    put:
+      tags:
+        - Wallet
+      summary: Update generation method
+      description: Update the default generation method for the user's wallet
+      operationId: updateGenerationMethod
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - method
+              properties:
+                method:
+                  type: string
+                  enum: [standard, express, premium]
+                  description: New generation method
+                  example: express
+      responses:
+        '200':
+          description: Generation method updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Generation method updated successfully
+                  wallet:
+                    $ref: '#/components/schemas/Wallet'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/admin/all:
+    get:
+      tags:
+        - Wallet (Admin)
+      summary: Get all wallets
+      description: Get a list of all wallets (admin only)
+      operationId: getAllWallets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+        - name: method
+          in: query
+          description: Filter by generation method
+          schema:
+            type: string
+            enum: [standard, express, premium]
+        - name: minBalance
+          in: query
+          description: Filter by minimum balance
+          schema:
+            type: number
+        - name: maxBalance
+          in: query
+          description: Filter by maximum balance
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Wallets retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  wallets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Wallet'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/admin/user/{userId}:
+    get:
+      tags:
+        - Wallet (Admin)
+      summary: Get wallet by user ID
+      description: Get a wallet for a specific user (admin only)
+      operationId: getWalletByUserId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Wallet retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  wallet:
+                    $ref: '#/components/schemas/Wallet'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/admin/status/{userId}:
+    put:
+      tags:
+        - Wallet (Admin)
+      summary: Update wallet status
+      description: Update the status of a user's wallet (admin only)
+      operationId: updateWalletStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [active, inactive, suspended]
+                  description: New wallet status
+                  example: suspended
+      responses:
+        '200':
+          description: Wallet status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Wallet status updated successfully
+                  wallet:
+                    $ref: '#/components/schemas/Wallet'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/admin/statistics:
+    get:
+      tags:
+        - Wallet (Admin)
+      summary: Get wallet statistics
+      description: Get statistics about all wallets (admin only)
+      operationId: getWalletStatistics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Wallet statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statistics:
+                    type: object
+                    properties:
+                      totalWallets:
+                        type: integer
+                        example: 1000
+                      totalBalance:
+                        type: number
+                        example: 5000000
+                      averageBalance:
+                        type: number
+                        example: 5000
+                      statusBreakdown:
+                        type: object
+                        properties:
+                          active:
+                            type: integer
+                            example: 950
+                          inactive:
+                            type: integer
+                            example: 30
+                          suspended:
+                            type: integer
+                            example: 20
+                      methodBreakdown:
+                        type: object
+                        properties:
+                          standard:
+                            type: integer
+                            example: 500
+                          express:
+                            type: integer
+                            example: 300
+                          premium:
+                            type: integer
+                            example: 200
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
