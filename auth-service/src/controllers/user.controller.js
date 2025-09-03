@@ -84,7 +84,7 @@ exports.changePassword = async (req, res, next) => {
     const { currentPassword, newPassword } = req.body;
     
     // Get user with password
-    const user = await User.findById(req.user._id).select('+password');
+    const user = await User.findById(req.user._id).select('+passwordHash');
     
     // Check current password
     const isPasswordValid = await user.comparePassword(currentPassword);
@@ -94,7 +94,7 @@ exports.changePassword = async (req, res, next) => {
     }
     
     // Update password
-    user.password = newPassword;
+    user.passwordHash = newPassword;
     
     // Clear all refresh tokens for security
     user.refreshTokens = [];

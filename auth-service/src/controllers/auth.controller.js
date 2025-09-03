@@ -47,7 +47,7 @@ exports.register = async (req, res, next) => {
     // Create new user
     const user = new User({
       email,
-      password,
+      passwordHash: password, // Use passwordHash field as per updated schema
       firstName,
       lastName,
       phoneNumber
@@ -103,7 +103,7 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     
     // Find user
-    const user = await User.findOne({ email }).select('+password +twoFactorSecret');
+    const user = await User.findOne({ email }).select('+passwordHash +twoFactorSecret');
     
     // Check if user exists
     if (!user) {
@@ -420,7 +420,7 @@ exports.resetPassword = async (req, res, next) => {
     }
     
     // Update password
-    user.password = password;
+    user.passwordHash = password;
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     
