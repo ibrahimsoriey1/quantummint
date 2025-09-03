@@ -1,0 +1,7 @@
+total 52
+drwxr-xr-x  2 root root   120 Sep  1 21:52 .
+drwxr-xr-x 11 root root   161 Sep  1 21:46 ..
+-rw-r--r--  1 root root 15146 Sep  1 21:52 afrimoney.provider.js
+-rw-r--r--  1 root root 15435 Sep  1 21:50 orange-money.provider.js
+-rw-r--r--  1 root root  5043 Sep  1 21:52 provider.factory.js
+-rw-r--r--  1 root root  9764 Sep  1 21:49 stripe.provider.js

@@ -1,0 +1,79 @@
+const express = require('express');
+const { body, query } = require('express-validator');
+const balanceController = require('../controllers/balance.controller');
+const { validateRequest } = require('../middleware/validateRequest');
+const { authenticate } = require('../middleware/authenticate');
+const { authorize } = require('../middleware/authorize');
+
+const router = express.Router();
+
+// Get user balance
+router.get(
+  '/my-balance',
+  authenticate,
+  balanceController.getUserBalance
+);
+
+// Admin routes
+// Get balance by user ID (admin only)
+router.get(
+  '/admin/user/:userId',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  balanceController.getBalanceByUserId
+);
+
+// Update balance status (admin only)
+router.put(
+  '/admin/status/:userId',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  [
+    body('status')
+      .isIn(['active', 'suspended', 'locked'])
+      .withMessage('Invalid status'),
+    validateRequest
+  ],
+  balanceController.updateBalanceStatus
+);
+
+// Get all balances (admin only)
+router.get(
+  '/admin/all',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  [
+    query('page')
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage('Page must be a positive integer'),
+    query('limit')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Limit must be between 1 and 100'),
+    query('status')
+      .optional()
+      .isIn(['active', 'suspended', 'locked'])
+      .withMessage('Invalid status'),
+    query('minBalance')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Minimum balance must be a non-negative number'),
+    query('maxBalance')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Maximum balance must be a non-negative number'),
+    validateRequest
+  ],
+  balanceController.getAllBalances
+);
+
+// Get balance statistics (admin only)
+router.get(
+  '/admin/statistics',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  balanceController.getBalanceStatistics
+);
+
+module.exports = router;

@@ -1,0 +1,1 @@
+{'role': 'assistant', 'content': "Let's update the package.json file for the auth-service to include test scripts:\n\n<function_calls>\n<execute-command>\ncat auth-service/package.json\n</execute-command>\n</function_calls>", 'tool_calls': None}

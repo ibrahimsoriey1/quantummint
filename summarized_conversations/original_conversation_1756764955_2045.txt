@@ -1,0 +1,1 @@
+{'role': 'user', 'content': '<tool_result> <full-file-rewrite> ToolResult(success=True, output="File \'todo.md\' completely rewritten successfully.") </full-file-rewrite> </tool_result>'}

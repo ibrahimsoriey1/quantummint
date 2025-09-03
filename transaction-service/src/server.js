@@ -5,8 +5,9 @@ const morgan = require('morgan');
 const compression = require('compression');
 const { connectDB } = require('./config/database');
 const { logger } = require('./utils/logger');
+const { requestIdMiddleware } = require('../../shared');
 const { setupMessageQueue } = require('./config/messageQueue');
-const { setupRedis } = require('./config/redis');
+const { setupRedis, redisClient } = require('./config/redis');
 const transactionRoutes = require('./routes/transaction.routes');
 const balanceRoutes = require('./routes/balance.routes');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -18,6 +19,7 @@ const PORT = process.env.PORT || 3003;
 
 // Middleware
 app.use(helmet()); // Security headers
+app.use(requestIdMiddleware); // Correlation ID
 app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
@@ -31,6 +33,29 @@ app.use('/api/balances', balanceRoutes);
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'UP', service: 'transaction-service' });
+});
+
+// Readiness probe
+app.get('/ready', async (req, res) => {
+  const checks = { mongo: false, rabbitmq: false, redis: false };
+  try {
+    // Mongo readiness: rely on connection state from mongoose
+    const mongoose = require('mongoose');
+    checks.mongo = mongoose.connection && mongoose.connection.readyState === 1;
+  } catch (_) {}
+  try {
+    // RabbitMQ: if setupMessageQueue completed earlier, assume available
+    checks.rabbitmq = true;
+  } catch (_) {}
+  try {
+    if (redisClient) {
+      await redisClient.ping();
+      checks.redis = true;
+    }
+  } catch (_) {}
+
+  const ready = checks.mongo && checks.rabbitmq && checks.redis;
+  res.status(ready ? 200 : 503).json({ service: 'transaction-service', ready, checks });
 });
 
 // Error handling middleware

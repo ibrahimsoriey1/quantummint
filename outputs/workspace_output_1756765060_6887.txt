@@ -1,0 +1,4 @@
+total 16
+drwxr-xr-x 2 root root    23 Sep  1 22:15 .
+drwxr-xr-x 3 root root    39 Sep  1 22:15 ..
+-rw-r--r-- 1 root root 15382 Sep  1 22:15 auth.yaml

@@ -1,0 +1,1 @@
+{'role': 'user', 'content': '<tool_result> <create-file> ToolResult(success=True, output="File \'.github/workflows/ci-cd.yml\' created successfully.") </create-file> </tool_result>'}

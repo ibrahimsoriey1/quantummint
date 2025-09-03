@@ -1,0 +1,478 @@
+paths:
+  /wallets:
+    get:
+      tags:
+        - Wallet
+      summary: Get user wallet
+      description: Get the current user's wallet information
+      operationId: getUserWallet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Wallet retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  wallet:
+                    $ref: '#/components/schemas/Wallet'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Wallet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                status: 404
+                message: Wallet not found
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/balance:
+    get:
+      tags:
+        - Wallet
+      summary: Get wallet balance
+      description: Get the current user's wallet balance
+      operationId: getWalletBalance
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Wallet balance retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  balance:
+                    type: number
+                    example: 5000
+                  formattedBalance:
+                    type: string
+                    example: "$5,000.00"
+                  currency:
+                    type: string
+                    example: "USD"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Wallet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                status: 404
+                message: Wallet not found
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/transfer:
+    post:
+      tags:
+        - Wallet
+      summary: Transfer money
+      description: Transfer money to another user
+      operationId: transferMoney
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recipientEmail
+                - amount
+              properties:
+                recipientEmail:
+                  type: string
+                  format: email
+                  description: Recipient's email address
+                  example: recipient@example.com
+                amount:
+                  type: number
+                  description: Amount to transfer
+                  example: 500
+                note:
+                  type: string
+                  description: Optional note for the recipient
+                  example: Payment for services
+      responses:
+        '200':
+          description: Transfer completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Transfer completed successfully
+                  transaction:
+                    $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                insufficientBalance:
+                  value:
+                    success: false
+                    status: 400
+                    message: Insufficient balance
+                recipientNotFound:
+                  value:
+                    success: false
+                    status: 400
+                    message: Recipient not found
+                selfTransfer:
+                  value:
+                    success: false
+                    status: 400
+                    message: Cannot transfer to yourself
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/deposit:
+    post:
+      tags:
+        - Wallet
+      summary: Deposit money
+      description: Deposit money into the wallet from an external source
+      operationId: depositMoney
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - paymentMethodId
+              properties:
+                amount:
+                  type: number
+                  description: Amount to deposit
+                  example: 1000
+                paymentMethodId:
+                  type: string
+                  description: Payment method ID
+                  example: 60d21b4667d0d8992e610c88
+      responses:
+        '200':
+          description: Deposit initiated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Deposit initiated successfully
+                  transaction:
+                    $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                status: 400
+                message: Invalid payment method
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/withdraw:
+    post:
+      tags:
+        - Wallet
+      summary: Withdraw money
+      description: Withdraw money from the wallet to an external account
+      operationId: withdrawMoney
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - paymentMethodId
+              properties:
+                amount:
+                  type: number
+                  description: Amount to withdraw
+                  example: 500
+                paymentMethodId:
+                  type: string
+                  description: Payment method ID
+                  example: 60d21b4667d0d8992e610c88
+      responses:
+        '200':
+          description: Withdrawal initiated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Withdrawal initiated successfully
+                  transaction:
+                    $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                insufficientBalance:
+                  value:
+                    success: false
+                    status: 400
+                    message: Insufficient balance
+                invalidPaymentMethod:
+                  value:
+                    success: false
+                    status: 400
+                    message: Invalid payment method
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/transactions:
+    get:
+      tags:
+        - Wallet
+      summary: Get wallet transactions
+      description: Get a list of transactions for the current user's wallet
+      operationId: getWalletTransactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: type
+          in: query
+          description: Filter by transaction type
+          schema:
+            type: string
+            enum: [deposit, withdrawal, transfer, generation]
+        - name: status
+          in: query
+          description: Filter by transaction status
+          schema:
+            type: string
+            enum: [pending, processing, completed, failed, cancelled]
+        - name: startDate
+          in: query
+          description: Filter by start date (ISO format)
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: Filter by end date (ISO format)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Wallet transactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  pagination:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 20
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      pages:
+                        type: integer
+                        example: 2
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/stats:
+    get:
+      tags:
+        - Wallet
+      summary: Get wallet statistics
+      description: Get statistics about the user's wallet activity
+      operationId: getWalletStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Wallet statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  stats:
+                    type: object
+                    properties:
+                      currentBalance:
+                        type: number
+                        example: 5000
+                      totalDeposits:
+                        type: number
+                        example: 10000
+                      totalWithdrawals:
+                        type: number
+                        example: 3000
+                      totalTransfersIn:
+                        type: number
+                        example: 2000
+                      totalTransfersOut:
+                        type: number
+                        example: 4000
+                      transactionCount:
+                        type: integer
+                        example: 50
+                      averageTransactionAmount:
+                        type: number
+                        example: 500
+                      typeBreakdown:
+                        type: object
+                        properties:
+                          deposit:
+                            type: integer
+                            example: 10
+                          withdrawal:
+                            type: integer
+                            example: 15
+                          transfer:
+                            type: integer
+                            example: 20
+                          generation:
+                            type: integer
+                            example: 5
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /wallets/history:
+    get:
+      tags:
+        - Wallet
+      summary: Get wallet balance history
+      description: Get historical balance data for the user's wallet
+      operationId: getWalletHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          description: Time period for history
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: month
+      responses:
+        '200':
+          description: Wallet balance history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                          example: "2023-01-01"
+                        balance:
+                          type: number
+                          example: 5000
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'

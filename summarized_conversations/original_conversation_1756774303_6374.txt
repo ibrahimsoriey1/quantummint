@@ -1,0 +1,1 @@
+{'role': 'user', 'content': "<tool_result> <str-replace> ToolResult(success=True, output='Replacement successful.') </str-replace> </tool_result>"}

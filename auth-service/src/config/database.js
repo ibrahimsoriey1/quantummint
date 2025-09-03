@@ -2,17 +2,19 @@ const mongoose = require('mongoose');
 const { logger } = require('../utils/logger');
 require('dotenv').config();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/quantummint';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/quantummint_auth';
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI, {
+    const conn = await mongoose.connect(MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    logger.info('MongoDB connected');
+    
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
+    return conn;
   } catch (error) {
-    logger.error(`MongoDB connection error: ${error.message}`);
+    logger.error(`Error connecting to MongoDB: ${error.message}`);
     process.exit(1);
   }
 };

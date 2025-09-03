@@ -1,0 +1,19 @@
+total 68
+drwxr-xr-x 13 root root  4096 Sep  1 22:15 .
+drwxr-xr-x  1 root root   122 Sep  1 21:28 ..
+-rw-r--r--  1 root root   352 Sep  1 21:29 .gitignore
+-rw-r--r--  1 root root  8873 Sep  1 21:28 README.md
+drwxr-xr-x  3 root root    57 Sep  1 22:10 api-gateway
+drwxr-xr-x  3 root root    57 Sep  1 21:29 auth-service
+drwxr-xr-x  2 root root     6 Sep  1 21:28 docker
+drwxr-xr-x  2 root root     6 Sep  1 21:28 frontend
+drwxr-xr-x  3 root root    57 Sep  1 22:00 kyc-service
+drwxr-xr-x  3 root root    57 Sep  1 21:35 money-generation
+drwxr-xr-x  2 root root  4096 Sep  1 22:16 outputs
+-rw-r--r--  1 root root  1763 Sep  1 21:29 package.json
+drwxr-xr-x  3 root root    57 Sep  1 21:45 payment-integration
+-rw-r--r--  1 root root 17103 Sep  1 21:28 setup_environment.md
+drwxr-xr-x  2 root root     6 Sep  1 21:28 shared
+drwxr-xr-x  2 root root 12288 Sep  1 22:16 summarized_conversations
+-rw-r--r--  1 root root  1959 Sep  1 22:10 todo.md
+drwxr-xr-x  3 root root    57 Sep  1 21:40 transaction-service

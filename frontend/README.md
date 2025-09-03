@@ -1,4 +1,3 @@
-
 # QuantumMint Frontend
 
 This is the frontend application for QuantumMint, a digital money generator platform. The frontend is built using React and provides a user interface for interacting with the QuantumMint services.

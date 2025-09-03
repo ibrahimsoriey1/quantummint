@@ -1,0 +1,5 @@
+total 8
+drwxr-xr-x 2 root root   41 Sep  1 22:12 .
+drwxr-xr-x 8 root root  107 Sep  1 22:11 ..
+-rw-r--r-- 1 root root  888 Sep  1 22:11 redis.js
+-rw-r--r-- 1 root root 1559 Sep  1 22:12 services.js

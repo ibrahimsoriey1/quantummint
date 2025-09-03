@@ -1,4 +1,4 @@
-# QuantumMint - Digital Money Generation Platform
+# QuantumMint - Digital Money Generator
 
 QuantumMint is a comprehensive digital money generation platform that allows users to create, manage, and transact with digital currency. The system is built with a microservices architecture, providing a scalable and maintainable solution.
 
@@ -16,7 +16,7 @@ QuantumMint is built using a microservices architecture with the following compo
 6. **KYC Service**: Handles Know Your Customer verification processes
 7. **Frontend**: React-based user interface
 
-## Technology Stack
+### Technology Stack
 
 - **Backend**: Node.js with Express
 - **Frontend**: React with Material UI
@@ -79,13 +79,13 @@ QuantumMint is built using a microservices architecture with the following compo
 ### Installation
 
 1. Clone the repository:
-   ```bash
+   ```
    git clone https://github.com/yourusername/quantummint.git
    cd quantummint
    ```
 
 2. Install dependencies for all services:
-   ```bash
+   ```
    npm run install-all
    ```
 
@@ -94,14 +94,14 @@ QuantumMint is built using a microservices architecture with the following compo
    - Update the variables with your configuration
 
 4. Start the services:
-   ```bash
+   ```
    npm run start
    ```
 
 ### Using Docker
 
 1. Copy the environment variables file:
-   ```bash
+   ```
    cd docker
    cp .env.example .env
    ```
@@ -109,7 +109,7 @@ QuantumMint is built using a microservices architecture with the following compo
 2. Update the `.env` file with your configuration
 
 3. Build and start the containers:
-   ```bash
+   ```
    ./deploy.sh --environment dev --build
    ```
 
@@ -133,11 +133,11 @@ API documentation is available at `/api-docs` when the API Gateway is running. T
 
 ```
 quantummint/
-├── api-gateway/             # API Gateway service
-├── auth-service/            # Authentication service
-├── money-generation/        # Money generation service
-├── transaction-service/     # Transaction service
-├── payment-integration/     # Payment integration service
+├── api-gateway/            # API Gateway service
+├── auth-service/           # Authentication service
+├── money-generation/       # Money generation service
+├── transaction-service/    # Transaction service
+├── payment-integration/    # Payment integration service
 ├── kyc-service/            # KYC verification service
 ├── frontend/               # React frontend application
 ├── docker/                 # Docker configuration files
@@ -148,7 +148,7 @@ quantummint/
 
 Each service can be run independently for development:
 
-```bash
+```
 cd <service-directory>
 npm run dev
 ```
@@ -159,13 +159,13 @@ This will start the service in development mode with hot reloading.
 
 Run tests for all services:
 
-```bash
+```
 npm test
 ```
 
 Or for a specific service:
 
-```bash
+```
 cd <service-directory>
 npm test
 ```
@@ -174,12 +174,12 @@ npm test
 
 The application can be deployed using Docker and Docker Compose:
 
-```bash
+```
 cd docker
 ./deploy.sh --environment prod --build
 ```
 
-### CI/CD Pipeline
+## CI/CD Pipeline
 
 The project includes a GitHub Actions workflow for continuous integration and deployment:
 
@@ -196,3 +196,8 @@ The project includes a GitHub Actions workflow for continuous integration and de
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- The NinjaTech AI team for their support and guidance
+- All contributors to the project

@@ -1,46 +1,24 @@
 {
   "name": "quantummint",
   "version": "1.0.0",
-  "description": "Digital Money Generation Platform with Microservices Architecture",
-  "main": "index.js",
+  "description": "A comprehensive system for generating digital money and enabling cash-out functionality through Orange Money, AfriMoney, and Stripe",
   "scripts": {
-    "install-all": "npm install && npm run install-services && npm run install-frontend",
-    "install-services": "cd api-gateway && npm install && cd ../auth-service && npm install && cd ../money-generation && npm install && cd ../transaction-service && npm install && cd ../payment-integration && npm install && cd ../kyc-service && npm install",
-    "install-frontend": "cd frontend && npm install",
-    "start": "concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:money\" \"npm run start:transaction\" \"npm run start:payment\" \"npm run start:kyc\" \"npm run start:frontend\"",
-    "start:gateway": "cd api-gateway && npm run dev",
+    "start:api-gateway": "cd api-gateway && npm run dev",
     "start:auth": "cd auth-service && npm run dev",
-    "start:money": "cd money-generation && npm run dev",
+    "start:generation": "cd money-generation && npm run dev",
     "start:transaction": "cd transaction-service && npm run dev",
     "start:payment": "cd payment-integration && npm run dev",
     "start:kyc": "cd kyc-service && npm run dev",
     "start:frontend": "cd frontend && npm start",
-    "test": "npm run test:services && npm run test:frontend",
-    "test:services": "cd api-gateway && npm test && cd ../auth-service && npm test && cd ../money-generation && npm test && cd ../transaction-service && npm test && cd ../payment-integration && npm test && cd ../kyc-service && npm test",
-    "test:frontend": "cd frontend && npm test",
-    "build": "npm run build:services && npm run build:frontend",
-    "build:services": "cd api-gateway && npm run build && cd ../auth-service && npm run build && cd ../money-generation && npm run build && cd ../transaction-service && npm run build && cd ../payment-integration && npm run build && cd ../kyc-service && npm run build",
-    "build:frontend": "cd frontend && npm run build",
-    "docker:build": "cd docker && ./deploy.sh --environment dev --build",
-    "docker:start": "cd docker && ./deploy.sh --environment dev",
-    "docker:stop": "cd docker && ./deploy.sh --environment dev --stop"
+    "start:all": "concurrently &quot;npm run start:api-gateway&quot; &quot;npm run start:auth&quot; &quot;npm run start:generation&quot; &quot;npm run start:transaction&quot; &quot;npm run start:payment&quot; &quot;npm run start:kyc&quot; &quot;npm run start:frontend&quot;",
+    "install:all": "npm install && cd api-gateway && npm install && cd ../auth-service && npm install && cd ../money-generation && npm install && cd ../transaction-service && npm install && cd ../payment-integration && npm install && cd ../kyc-service && npm install && cd ../frontend && npm install && cd ../shared && npm install",
+    "test:all": "cd api-gateway && npm test && cd ../auth-service && npm test && cd ../money-generation && npm test && cd ../transaction-service && npm test && cd ../payment-integration && npm test && cd ../kyc-service && npm test && cd ../frontend && npm test",
+    "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
+    "docker:build": "docker-compose -f docker/docker-compose.yml build"
   },
-  "keywords": [
-    "digital-money",
-    "microservices",
-    "blockchain",
-    "fintech",
-    "nodejs",
-    "react"
-  ],
-  "author": "QuantumMint Team",
-  "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
-  "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
+    "concurrently": "^7.6.0"
   },
   "dependencies": {
     "@google-cloud/vision": "^5.3.3"

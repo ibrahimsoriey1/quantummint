@@ -1,0 +1,68 @@
+const processWebhook = async (provider, data) => {
+  try {
+    const { event, payload, signature, timestamp } = data;
+    
+    // Verify webhook signature if provided
+    let verifiedEvent = event;
+    
+    if (payload && signature) {
+      const verificationResult = providerFactory.verifyWebhook(provider, payload, signature, timestamp);
+      verifiedEvent = verificationResult.event;
+    }
+    
+    // Process webhook event
+    const processedEvent = providerFactory.processWebhookEvent(provider, verifiedEvent);
+    
+    // If event is not handled, return
+    if (!processedEvent.handled) {
+      return {
+        success: true,
+        handled: false,
+        message: processedEvent.message
+      };
+    }
+    
+    // Find payment by provider payment ID
+    const payment = await Payment.findOne({ 
+      provider, 
+      providerPaymentId: processedEvent.paymentId 
+    });
+    
+    if (!payment) {
+      logger.error(`Payment not found for webhook: ${processedEvent.paymentId}`);
+      return {
+        success: false,
+        handled: true,
+        message: 'Payment not found'
+      };
+    }
+    
+    // Update payment status
+    payment.status = processedEvent.status;
+    payment.webhookReceived = true;
+    payment.webhookData = processedEvent.eventData;
+    
+    // If payment is completed, update completedAt
+    if (payment.status === 'completed') {
+      payment.completedAt = new Date();
+      
+      // Publish payment completed message
+      await publishMessage(`payment.${payment.type}_completed`, {
+        paymentId: payment._id,
+        userId: payment.userId,
+        transactionId: payment.transactionId,
+        provider: payment.provider,
+        amount: payment.amount
+      });
+      
+      // Update transaction status
+      try {
+        await axios.post(
+          `${process.env.TRANSACTION_SERVICE_URL}/complete-${payment.type}/${payment.transactionId}`,
+          {
+            success: true
+          },
+--
+  processWebhook,
+  getPaymentStatistics
+};

@@ -1,0 +1,201 @@
+const express = require('express');
+const { body, param } = require('express-validator');
+const providerController = require('../controllers/provider.controller');
+const { validateRequest } = require('../middleware/validateRequest');
+const { authenticate } = require('../middleware/authenticate');
+const { authorize } = require('../middleware/authorize');
+
+const router = express.Router();
+
+// Get active providers (public)
+router.get('/active', providerController.getActiveProviders);
+
+// Get provider by code (public)
+router.get(
+  '/:code',
+  [
+    param('code')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider code'),
+    validateRequest
+  ],
+  providerController.getProviderByCode
+);
+
+// Get provider fee structure (public)
+router.get(
+  '/:code/fee-structure',
+  [
+    param('code')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider code'),
+    validateRequest
+  ],
+  providerController.getProviderFeeStructure
+);
+
+// Calculate provider fee (public)
+router.post(
+  '/:code/calculate-fee',
+  [
+    param('code')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider code'),
+    body('amount')
+      .isFloat({ min: 0.01 })
+      .withMessage('Amount must be at least 0.01'),
+    body('currency')
+      .optional()
+      .isString()
+      .isLength({ min: 3, max: 3 })
+      .withMessage('Currency must be a 3-letter code'),
+    validateRequest
+  ],
+  providerController.calculateProviderFee
+);
+
+// Admin routes
+// Initialize providers (admin only)
+router.post(
+  '/initialize',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  providerController.initializeProviders
+);
+
+// Get all providers (admin only)
+router.get(
+  '/',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  providerController.getAllProviders
+);
+
+// Create provider (admin only)
+router.post(
+  '/',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  [
+    body('name')
+      .isString()
+      .withMessage('Name is required'),
+    body('code')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider code'),
+    body('type')
+      .optional()
+      .isIn(['payment', 'withdrawal', 'both'])
+      .withMessage('Invalid provider type'),
+    body('isActive')
+      .optional()
+      .isBoolean()
+      .withMessage('isActive must be a boolean'),
+    body('supportedCountries')
+      .optional()
+      .isArray()
+      .withMessage('Supported countries must be an array'),
+    body('supportedCurrencies')
+      .optional()
+      .isArray()
+      .withMessage('Supported currencies must be an array'),
+    body('minAmount')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Minimum amount must be a non-negative number'),
+    body('maxAmount')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Maximum amount must be a non-negative number'),
+    body('feeStructure')
+      .optional()
+      .isObject()
+      .withMessage('Fee structure must be an object'),
+    body('requiredKycLevel')
+      .optional()
+      .isIn(['none', 'tier_1', 'tier_2', 'tier_3'])
+      .withMessage('Invalid KYC level'),
+    validateRequest
+  ],
+  providerController.createProvider
+);
+
+// Update provider (admin only)
+router.put(
+  '/:code',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  [
+    param('code')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider code'),
+    body('name')
+      .optional()
+      .isString()
+      .withMessage('Name must be a string'),
+    body('type')
+      .optional()
+      .isIn(['payment', 'withdrawal', 'both'])
+      .withMessage('Invalid provider type'),
+    body('isActive')
+      .optional()
+      .isBoolean()
+      .withMessage('isActive must be a boolean'),
+    body('supportedCountries')
+      .optional()
+      .isArray()
+      .withMessage('Supported countries must be an array'),
+    body('supportedCurrencies')
+      .optional()
+      .isArray()
+      .withMessage('Supported currencies must be an array'),
+    body('minAmount')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Minimum amount must be a non-negative number'),
+    body('maxAmount')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Maximum amount must be a non-negative number'),
+    body('feeStructure')
+      .optional()
+      .isObject()
+      .withMessage('Fee structure must be an object'),
+    body('requiredKycLevel')
+      .optional()
+      .isIn(['none', 'tier_1', 'tier_2', 'tier_3'])
+      .withMessage('Invalid KYC level'),
+    validateRequest
+  ],
+  providerController.updateProvider
+);
+
+// Delete provider (admin only)
+router.delete(
+  '/:code',
+  authenticate,
+  authorize(['super_admin']),
+  [
+    param('code')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider code'),
+    validateRequest
+  ],
+  providerController.deleteProvider
+);
+
+// Toggle provider status (admin only)
+router.patch(
+  '/:code/toggle-status',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  [
+    param('code')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider code'),
+    validateRequest
+  ],
+  providerController.toggleProviderStatus
+);
+
+module.exports = router;

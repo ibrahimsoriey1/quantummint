@@ -1,0 +1,1 @@
+{'role': 'user', 'content': 'use these files to develop a digital money generator called QuantumMint \n\n[Uploaded File: /workspace/README.md]\n[Uploaded File: /workspace/setup_environment.md]\n'}

@@ -1,0 +1,1 @@
+{'role': 'assistant', 'content': "Now I'll create the directory structure for the auth-service:\n\n<function_calls>\n<execute-command>\nmkdir -p auth-service/src/models auth-service/src/controllers auth-service/src/routes auth-service/src/middleware auth-service/src/config auth-service/src/utils auth-service/src/tests\n</execute-command>\n</function_calls>", 'tool_calls': None}

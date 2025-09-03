@@ -1,0 +1,263 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:latest
+    container_name: quantummint-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    networks:
+      - quantummint-network
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: quantummint-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - quantummint-network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: quantummint-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    networks:
+      - quantummint-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ../api-gateway
+      dockerfile: Dockerfile
+    container_name: quantummint-api-gateway
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - CORS_ORIGIN=http://localhost:3006
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - MONEY_GENERATION_SERVICE_URL=http://money-generation:3002
+      - TRANSACTION_SERVICE_URL=http://transaction-service:3003
+      - PAYMENT_INTEGRATION_SERVICE_URL=http://payment-integration:3004
+      - KYC_SERVICE_URL=http://kyc-service:3005
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVICE_KEY=${SERVICE_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX_REQUESTS=100
+    volumes:
+      - ../api-gateway:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - redis
+    networks:
+      - quantummint-network
+
+  # Authentication Service
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
+    container_name: quantummint-auth-service
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/auth-service?authSource=admin
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=1d
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - REFRESH_TOKEN_EXPIRES_IN=7d
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVICE_KEY=${SERVICE_KEY}
+      - FRONTEND_URL=http://localhost:3006
+    volumes:
+      - ../auth-service:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - quantummint-network
+
+  # Money Generation Service
+  money-generation:
+    build:
+      context: ../money-generation
+      dockerfile: Dockerfile
+    container_name: quantummint-money-generation
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/money-generation-service?authSource=admin
+      - JWT_SECRET=${JWT_SECRET}
+      - RABBITMQ_URI=amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - SERVICE_KEY=${SERVICE_KEY}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - TRANSACTION_SERVICE_URL=http://transaction-service:3003
+    volumes:
+      - ../money-generation:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - auth-service
+    networks:
+      - quantummint-network
+
+  # Transaction Service
+  transaction-service:
+    build:
+      context: ../transaction-service
+      dockerfile: Dockerfile
+    container_name: quantummint-transaction-service
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/transaction-service?authSource=admin
+      - JWT_SECRET=${JWT_SECRET}
+      - RABBITMQ_URI=amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - SERVICE_KEY=${SERVICE_KEY}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+    volumes:
+      - ../transaction-service:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - auth-service
+    networks:
+      - quantummint-network
+
+  # Payment Integration Service
+  payment-integration:
+    build:
+      context: ../payment-integration
+      dockerfile: Dockerfile
+    container_name: quantummint-payment-integration
+    restart: always
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/payment-integration-service?authSource=admin
+      - JWT_SECRET=${JWT_SECRET}
+      - RABBITMQ_URI=amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - SERVICE_KEY=${SERVICE_KEY}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - TRANSACTION_SERVICE_URL=http://transaction-service:3003
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - ORANGE_MONEY_API_KEY=${ORANGE_MONEY_API_KEY}
+      - ORANGE_MONEY_API_SECRET=${ORANGE_MONEY_API_SECRET}
+      - AFRIMONEY_API_KEY=${AFRIMONEY_API_KEY}
+      - AFRIMONEY_API_SECRET=${AFRIMONEY_API_SECRET}
+    volumes:
+      - ../payment-integration:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - auth-service
+      - transaction-service
+    networks:
+      - quantummint-network
+
+  # KYC Service
+  kyc-service:
+    build:
+      context: ../kyc-service
+      dockerfile: Dockerfile
+    container_name: quantummint-kyc-service
+    restart: always
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/kyc-service?authSource=admin
+      - JWT_SECRET=${JWT_SECRET}
+      - RABBITMQ_URI=amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - SERVICE_KEY=${SERVICE_KEY}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - STORAGE_TYPE=local
+      - STORAGE_PATH=/usr/src/app/uploads
+    volumes:
+      - ../kyc-service:/usr/src/app
+      - /usr/src/app/node_modules
+      - kyc_uploads:/usr/src/app/uploads
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - auth-service
+    networks:
+      - quantummint-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      target: build
+    container_name: quantummint-frontend
+    restart: always
+    ports:
+      - "3006:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - REACT_APP_API_URL=http://localhost:3000/api
+    volumes:
+      - ../frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm start
+    networks:
+      - quantummint-network
+
+volumes:
+  mongodb_data:
+  redis_data:
+  rabbitmq_data:
+  kyc_uploads:
+
+networks:
+  quantummint-network:
+    driver: bridge

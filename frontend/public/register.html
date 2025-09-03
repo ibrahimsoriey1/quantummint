@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumMint - Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6c63ff;
+            --secondary-color: #4d44ff;
+            --accent-color: #00d9ff;
+            --dark-color: #2a2a72;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --gray-color: #6c757d;
+            --white-color: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            box-shadow: var(--shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: var(--white-color);
+            position: relative;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            padding: 40px;
+            color: var(--white-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 1;
+        }
+
+        .left-panel h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .left-panel p {
+            font-size: 1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+        }
+
+        .benefits {
+            margin-top: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .benefit i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+            max-height: 700px;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .register-header h2 {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+
+        .register-header p {
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+            outline: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+            cursor: pointer;
+        }
+
+        .password-requirements {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--gray-color);
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .requirement i {
+            margin-right: 5px;
+            font-size: 0.8rem;
+        }
+
+        .requirement.valid {
+            color: var(--success-color);
+        }
+
+        .requirement.invalid {
+            color: var(--gray-color);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .terms-checkbox input {
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+
+        .terms-checkbox label {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            line-height: 1.4;
+        }
+
+        .terms-checkbox a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .terms-checkbox a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:disabled {
+            background-color: var(--gray-color);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            margin-top: 15px;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+        }
+
+        .social-register {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-register p {
+            color: var(--gray-color);
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .social-register p::before,
+        .social-register p::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background-color: #ddd;
+        }
+
+        .social-register p::before {
+            left: 0;
+        }
+
+        .social-register p::after {
+            right: 0;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-icon.google {
+            color: #DB4437;
+        }
+
+        .social-icon.facebook {
+            color: #4267B2;
+        }
+
+        .social-icon.apple {
+            color: #000000;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background-color: #ddd;
+            z-index: 1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 5px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+        }
+
+        .step.completed .step-circle {
+            background-color: var(--success-color);
+            color: var(--white-color);
+        }
+
+        .step-title {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+        }
+
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .step.completed .step-title {
+            color: var(--success-color);
+        }
+
+        .progress-bar {
+            height: 5px;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn-prev {
+            width: 48%;
+        }
+
+        .btn-next {
+            width: 48%;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                max-width: 500px;
+            }
+
+            .left-panel {
+                padding: 30px;
+            }
+
+            .right-panel {
+                padding: 30px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h1>QuantumMint</h1>
+            <p>Join the future of digital money generation. Create your QuantumMint account today and start your journey into the world of digital currency.</p>
+            
+            <div class="benefits">
+                <div class="benefit">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Create and manage your digital currency</span>
+                </div>
+                <div class="benefit">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Secure transactions with advanced encryption</span>
+                </div>
+                <div class="benefit">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Multiple payment integration options</span>
+                </div>
+                <div class="benefit">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Real-time analytics and reporting</span>
+                </div>
+                <div class="benefit">
+                    <i class="fas fa-check-circle"></i>
+                    <span>24/7 customer support</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="register-form">
+                <div class="register-header">
+                    <h2>Create Your Account</h2>
+                    <p>Fill in the form below to get started</p>
+                </div>
+                
+                <div class="alert alert-danger" id="error-message"></div>
+                <div class="alert alert-success" id="success-message"></div>
+                
+                <div class="progress-container">
+                    <div class="progress-steps">
+                        <div class="step active" id="step-1">
+                            <div class="step-circle">1</div>
+                            <div class="step-title">Account</div>
+                        </div>
+                        <div class="step" id="step-2">
+                            <div class="step-circle">2</div>
+                            <div class="step-title">Personal</div>
+                        </div>
+                        <div class="step" id="step-3">
+                            <div class="step-circle">3</div>
+                            <div class="step-title">Security</div>
+                        </div>
+                        <div class="step" id="step-4">
+                            <div class="step-circle">4</div>
+                            <div class="step-title">Finish</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" id="progress-bar-fill" style="width: 25%"></div>
+                    </div>
+                </div>
+                
+                <form id="register-form">
+                    <!-- Step 1: Account Information -->
+                    <div class="form-step active" id="form-step-1">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="email" class="form-control" placeholder="Enter your email">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="username" class="form-control" placeholder="Choose a username">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="password" class="form-control" placeholder="Create a password">
+                                <span class="password-toggle" id="password-toggle">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                            <div class="password-requirements">
+                                <div class="requirement" id="length-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>At least 8 characters</span>
+                                </div>
+                                <div class="requirement" id="uppercase-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>At least one uppercase letter</span>
+                                </div>
+                                <div class="requirement" id="lowercase-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>At least one lowercase letter</span>
+                                </div>
+                                <div class="requirement" id="number-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>At least one number</span>
+                                </div>
+                                <div class="requirement" id="special-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>At least one special character</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="confirm-password" class="form-control" placeholder="Confirm your password">
+                            </div>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-next" id="next-1">Next</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Personal Information -->
+                    <div class="form-step" id="form-step-2">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first-name">First Name</label>
+                                <div class="input-group">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="first-name" class="form-control" placeholder="Enter your first name">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="last-name">Last Name</label>
+                                <div class="input-group">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="last-name" class="form-control" placeholder="Enter your last name">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <div class="input-group">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <div class="input-group">
+                                <i class="fas fa-globe"></i>
+                                <select id="country" class="form-control">
+                                    <option value="">Select your country</option>
+                                    <option value="US">United States</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="AU">Australia</option>
+                                    <option value="DE">Germany</option>
+                                    <option value="FR">France</option>
+                                    <option value="JP">Japan</option>
+                                    <option value="CN">China</option>
+                                    <option value="IN">India</option>
+                                    <option value="BR">Brazil</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-outline btn-prev" id="prev-2">Previous</button>
+                            <button type="button" class="btn btn-next" id="next-2">Next</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Security Setup -->
+                    <div class="form-step" id="form-step-3">
+                        <div class="form-group">
+                            <label for="security-question">Security Question</label>
+                            <div class="input-group">
+                                <i class="fas fa-question-circle"></i>
+                                <select id="security-question" class="form-control">
+                                    <option value="">Select a security question</option>
+                                    <option value="1">What was the name of your first pet?</option>
+                                    <option value="2">What was your childhood nickname?</option>
+                                    <option value="3">In what city were you born?</option>
+                                    <option value="4">What is your mother's maiden name?</option>
+                                    <option value="5">What was the make of your first car?</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="security-answer">Security Answer</label>
+                            <div class="input-group">
+                                <i class="fas fa-key"></i>
+                                <input type="text" id="security-answer" class="form-control" placeholder="Enter your answer">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Two-Factor Authentication</label>
+                            <div class="input-group">
+                                <div style="padding: 12px 15px 12px 40px; border: 1px solid #ddd; border-radius: var(--border-radius); width: 100%;">
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="radio" id="2fa-email" name="2fa-method" value="email" checked>
+                                        <label for="2fa-email" style="margin-left: 10px; margin-bottom: 0;">Email</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; margin-top: 10px;">
+                                        <input type="radio" id="2fa-sms" name="2fa-method" value="sms">
+                                        <label for="2fa-sms" style="margin-left: 10px; margin-bottom: 0;">SMS</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; margin-top: 10px;">
+                                        <input type="radio" id="2fa-app" name="2fa-method" value="app">
+                                        <label for="2fa-app" style="margin-left: 10px; margin-bottom: 0;">Authenticator App</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-outline btn-prev" id="prev-3">Previous</button>
+                            <button type="button" class="btn btn-next" id="next-3">Next</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Terms and Finish -->
+                    <div class="form-step" id="form-step-4">
+                        <div class="form-group">
+                            <label>Account Type</label>
+                            <div class="input-group">
+                                <div style="padding: 12px 15px 12px 40px; border: 1px solid #ddd; border-radius: var(--border-radius); width: 100%;">
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="radio" id="account-personal" name="account-type" value="personal" checked>
+                                        <label for="account-personal" style="margin-left: 10px; margin-bottom: 0;">
+                                            <strong>Personal</strong> - For individual use
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; margin-top: 10px;">
+                                        <input type="radio" id="account-business" name="account-type" value="business">
+                                        <label for="account-business" style="margin-left: 10px; margin-bottom: 0;">
+                                            <strong>Business</strong> - For company or organization
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>How did you hear about us?</label>
+                            <div class="input-group">
+                                <i class="fas fa-info-circle"></i>
+                                <select id="referral-source" class="form-control">
+                                    <option value="">Select an option</option>
+                                    <option value="search">Search Engine</option>
+                                    <option value="social">Social Media</option>
+                                    <option value="friend">Friend or Colleague</option>
+                                    <option value="ad">Advertisement</option>
+                                    <option value="blog">Blog or Article</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="terms-checkbox">
+                            <input type="checkbox" id="terms-checkbox">
+                            <label for="terms-checkbox">
+                                I have read and agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>. I understand that my personal data will be processed as described in the Privacy Policy.
+                            </label>
+                        </div>
+                        
+                        <div class="terms-checkbox">
+                            <input type="checkbox" id="marketing-checkbox">
+                            <label for="marketing-checkbox">
+                                I would like to receive marketing communications about QuantumMint products, services, and promotions. (Optional)
+                            </label>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-outline btn-prev" id="prev-4">Previous</button>
+                            <button type="button" class="btn" id="register-btn" disabled>Create Account</button>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="social-register">
+                    <p>Or register with</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon google">
+                            <i class="fab fa-google"></i>
+                        </a>
+                        <a href="#" class="social-icon facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon apple">
+                            <i class="fab fa-apple"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="login-link">
+                    <p>Already have an account? <a href="login.html">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form steps navigation
+            let currentStep = 1;
+            const totalSteps = 4;
+            
+            // Step navigation buttons
+            const next1Btn = document.getElementById('next-1');
+            const next2Btn = document.getElementById('next-2');
+            const next3Btn = document.getElementById('next-3');
+            const prev2Btn = document.getElementById('prev-2');
+            const prev3Btn = document.getElementById('prev-3');
+            const prev4Btn = document.getElementById('prev-4');
+            const registerBtn = document.getElementById('register-btn');
+            
+            // Toggle password visibility
+            const passwordToggle = document.getElementById('password-toggle');
+            const passwordInput = document.getElementById('password');
+            
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle eye icon
+                const eyeIcon = passwordToggle.querySelector('i');
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+            
+            // Password validation
+            const lengthReq = document.getElementById('length-req');
+            const uppercaseReq = document.getElementById('uppercase-req');
+            const lowercaseReq = document.getElementById('lowercase-req');
+            const numberReq = document.getElementById('number-req');
+            const specialReq = document.getElementById('special-req');
+            
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                
+                // Check requirements
+                const hasLength = password.length >= 8;
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasLowercase = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                
+                // Update UI
+                updateRequirement(lengthReq, hasLength);
+                updateRequirement(uppercaseReq, hasUppercase);
+                updateRequirement(lowercaseReq, hasLowercase);
+                updateRequirement(numberReq, hasNumber);
+                updateRequirement(specialReq, hasSpecial);
+            });
+            
+            function updateRequirement(element, isValid) {
+                if (isValid) {
+                    element.classList.add('valid');
+                    element.classList.remove('invalid');
+                    element.querySelector('i').className = 'fas fa-check-circle';
+                } else {
+                    element.classList.add('invalid');
+                    element.classList.remove('valid');
+                    element.querySelector('i').className = 'fas fa-circle';
+                }
+            }
+            
+            // Terms checkbox
+            const termsCheckbox = document.getElementById('terms-checkbox');
+            
+            termsCheckbox.addEventListener('change', function() {
+                registerBtn.disabled = !this.checked;
+            });
+            
+            // Step navigation
+            next1Btn.addEventListener('click', function() {
+                if (validateStep1()) {
+                    goToStep(2);
+                }
+            });
+            
+            next2Btn.addEventListener('click', function() {
+                if (validateStep2()) {
+                    goToStep(3);
+                }
+            });
+            
+            next3Btn.addEventListener('click', function() {
+                if (validateStep3()) {
+                    goToStep(4);
+                }
+            });
+            
+            prev2Btn.addEventListener('click', function() {
+                goToStep(1);
+            });
+            
+            prev3Btn.addEventListener('click', function() {
+                goToStep(2);
+            });
+            
+            prev4Btn.addEventListener('click', function() {
+                goToStep(3);
+            });
+            
+            // Register button
+            registerBtn.addEventListener('click', function() {
+                if (validateStep4()) {
+                    simulateRegistration();
+                }
+            });
+            
+            // Step validation functions
+            function validateStep1() {
+                const email = document.getElementById('email').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                const errorMessage = document.getElementById('error-message');
+                
+                // Reset error message
+                errorMessage.style.display = 'none';
+                
+                // Validate email
+                if (!email) {
+                    showError('Please enter your email address');
+                    return false;
+                }
+                
+                // Simple email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showError('Please enter a valid email address');
+                    return false;
+                }
+                
+                // Validate username
+                if (!username) {
+                    showError('Please enter a username');
+                    return false;
+                }
+                
+                if (username.length < 4) {
+                    showError('Username must be at least 4 characters long');
+                    return false;
+                }
+                
+                // Validate password
+                if (!password) {
+                    showError('Please enter a password');
+                    return false;
+                }
+                
+                // Check password requirements
+                const hasLength = password.length >= 8;
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasLowercase = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                
+                if (!hasLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+                    showError('Password does not meet all requirements');
+                    return false;
+                }
+                
+                // Validate confirm password
+                if (!confirmPassword) {
+                    showError('Please confirm your password');
+                    return false;
+                }
+                
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            function validateStep2() {
+                const firstName = document.getElementById('first-name').value;
+                const lastName = document.getElementById('last-name').value;
+                const phone = document.getElementById('phone').value;
+                const country = document.getElementById('country').value;
+                
+                // Reset error message
+                document.getElementById('error-message').style.display = 'none';
+                
+                // Validate first name
+                if (!firstName) {
+                    showError('Please enter your first name');
+                    return false;
+                }
+                
+                // Validate last name
+                if (!lastName) {
+                    showError('Please enter your last name');
+                    return false;
+                }
+                
+                // Validate phone
+                if (!phone) {
+                    showError('Please enter your phone number');
+                    return false;
+                }
+                
+                // Simple phone validation
+                const phoneRegex = /^\+?[0-9\s\-\(\)]{8,20}$/;
+                if (!phoneRegex.test(phone)) {
+                    showError('Please enter a valid phone number');
+                    return false;
+                }
+                
+                // Validate country
+                if (!country) {
+                    showError('Please select your country');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            function validateStep3() {
+                const securityQuestion = document.getElementById('security-question').value;
+                const securityAnswer = document.getElementById('security-answer').value;
+                
+                // Reset error message
+                document.getElementById('error-message').style.display = 'none';
+                
+                // Validate security question
+                if (!securityQuestion) {
+                    showError('Please select a security question');
+                    return false;
+                }
+                
+                // Validate security answer
+                if (!securityAnswer) {
+                    showError('Please enter your security answer');
+                    return false;
+                }
+                
+                if (securityAnswer.length < 3) {
+                    showError('Security answer must be at least 3 characters long');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            function validateStep4() {
+                // No validation needed for step 4 except terms checkbox
+                // which is handled by the button disabled state
+                return true;
+            }
+            
+            function goToStep(step) {
+                // Hide all steps
+                document.querySelectorAll('.form-step').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Show current step
+                document.getElementById(`form-step-${step}`).classList.add('active');
+                
+                // Update progress bar
+                document.getElementById('progress-bar-fill').style.width = `${(step / totalSteps) * 100}%`;
+                
+                // Update step indicators
+                for (let i = 1; i <= totalSteps; i++) {
+                    const stepEl = document.getElementById(`step-${i}`);
+                    
+                    if (i < step) {
+                        stepEl.classList.add('completed');
+                        stepEl.classList.remove('active');
+                        stepEl.querySelector('.step-circle').innerHTML = '<i class="fas fa-check"></i>';
+                    } else if (i === step) {
+                        stepEl.classList.add('active');
+                        stepEl.classList.remove('completed');
+                        stepEl.querySelector('.step-circle').innerHTML = i;
+                    } else {
+                        stepEl.classList.remove('active', 'completed');
+                        stepEl.querySelector('.step-circle').innerHTML = i;
+                    }
+                }
+                
+                // Update current step
+                currentStep = step;
+                
+                // Scroll to top of form
+                document.querySelector('.right-panel').scrollTop = 0;
+            }
+            
+            function showError(message) {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                
+                // Scroll to error message
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            function simulateRegistration() {
+                // Show loading state
+                registerBtn.textContent = 'Creating Account...';
+                registerBtn.disabled = true;
+                
+                // Simulate API delay
+                setTimeout(() => {
+                    // Show success message
+                    const successMessage = document.getElementById('success-message');
+                    successMessage.textContent = 'Account created successfully! Redirecting to login...';
+                    successMessage.style.display = 'block';
+                    
+                    // Hide error message if visible
+                    document.getElementById('error-message').style.display = 'none';
+                    
+                    // Redirect after success
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

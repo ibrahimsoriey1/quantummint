@@ -1,0 +1,1 @@
+{'role': 'user', 'content': '<tool_result> <create-file> ToolResult(success=True, output="File \'todo.md\' created successfully.") </create-file> </tool_result>'}

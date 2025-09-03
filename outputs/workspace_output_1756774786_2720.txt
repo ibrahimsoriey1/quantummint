@@ -1,0 +1,255 @@
+const express = require('express');
+const { body, query, param } = require('express-validator');
+const paymentController = require('../controllers/payment.controller');
+const { validateRequest } = require('../middleware/validateRequest');
+const { authenticate, authenticateService } = require('../middleware/authenticate');
+const { authorize } = require('../middleware/authorize');
+
+const router = express.Router();
+
+// Create payment
+router.post(
+  '/',
+  authenticate,
+  [
+    body('transactionId')
+      .isString()
+      .withMessage('Transaction ID is required'),
+    body('provider')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider'),
+    body('amount')
+      .isFloat({ min: 0.01 })
+      .withMessage('Amount must be at least 0.01'),
+    body('currency')
+      .optional()
+      .isString()
+      .isLength({ min: 3, max: 3 })
+      .withMessage('Currency must be a 3-letter code'),
+    body('recipientInfo')
+      .optional()
+      .isObject()
+      .withMessage('Recipient info must be an object'),
+    validateRequest
+  ],
+  paymentController.createPayment
+);
+
+// Create withdrawal
+router.post(
+  '/withdrawal',
+  authenticate,
+  [
+    body('transactionId')
+      .isString()
+      .withMessage('Transaction ID is required'),
+    body('provider')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider'),
+    body('amount')
+      .isFloat({ min: 0.01 })
+      .withMessage('Amount must be at least 0.01'),
+    body('currency')
+      .optional()
+      .isString()
+      .isLength({ min: 3, max: 3 })
+      .withMessage('Currency must be a 3-letter code'),
+    body('recipientInfo')
+      .isObject()
+      .withMessage('Recipient info is required'),
+    validateRequest
+  ],
+  paymentController.createWithdrawal
+);
+
+// Get payment by ID
+router.get(
+  '/:id',
+  authenticate,
+  [
+    param('id')
+      .isMongoId()
+      .withMessage('Invalid payment ID'),
+    validateRequest
+  ],
+  paymentController.getPaymentById
+);
+
+// Get payment status
+router.get(
+  '/:id/status',
+  authenticate,
+  [
+    param('id')
+      .isMongoId()
+      .withMessage('Invalid payment ID'),
+    validateRequest
+  ],
+  paymentController.getPaymentStatus
+);
+
+// Get user payments
+router.get(
+  '/',
+  authenticate,
+  [
+    query('page')
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage('Page must be a positive integer'),
+    query('limit')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Limit must be between 1 and 100'),
+    query('type')
+      .optional()
+      .isIn(['payment', 'withdrawal'])
+      .withMessage('Invalid payment type'),
+    query('provider')
+      .optional()
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider'),
+    query('status')
+      .optional()
+      .isIn(['pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded'])
+      .withMessage('Invalid status'),
+    validateRequest
+  ],
+  paymentController.getUserPayments
+);
+
+// Refund payment
+router.post(
+  '/:id/refund',
+  authenticate,
+  [
+    param('id')
+      .isMongoId()
+      .withMessage('Invalid payment ID'),
+    body('amount')
+      .optional()
+      .isFloat({ min: 0.01 })
+      .withMessage('Amount must be at least 0.01'),
+    body('reason')
+      .optional()
+      .isString()
+      .withMessage('Reason must be a string'),
+    validateRequest
+  ],
+  paymentController.refundPayment
+);
+
+// Cancel payment
+router.post(
+  '/:id/cancel',
+  authenticate,
+  [
+    param('id')
+      .isMongoId()
+      .withMessage('Invalid payment ID'),
+    body('reason')
+      .optional()
+      .isString()
+      .withMessage('Reason must be a string'),
+    validateRequest
+  ],
+  paymentController.cancelPayment
+);
+
+// Internal routes (service to service)
+// Create internal payment
+router.post(
+  '/internal',
+  authenticateService,
+  [
+    body('userId')
+      .isString()
+      .withMessage('User ID is required'),
+    body('transactionId')
+      .isString()
+      .withMessage('Transaction ID is required'),
+    body('provider')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider'),
+    body('amount')
+      .isFloat({ min: 0.01 })
+      .withMessage('Amount must be at least 0.01'),
+    validateRequest
+  ],
+  paymentController.createInternalPayment
+);
+
+// Create internal withdrawal
+router.post(
+  '/internal/withdrawal',
+  authenticateService,
+  [
+    body('userId')
+      .isString()
+      .withMessage('User ID is required'),
+    body('transactionId')
+      .isString()
+      .withMessage('Transaction ID is required'),
+    body('provider')
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider'),
+    body('amount')
+      .isFloat({ min: 0.01 })
+      .withMessage('Amount must be at least 0.01'),
+    body('recipientInfo')
+      .isObject()
+      .withMessage('Recipient info is required'),
+    validateRequest
+  ],
+  paymentController.createInternalWithdrawal
+);
+
+// Admin routes
+// Get all payments (admin only)
+router.get(
+  '/admin/all',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  [
+    query('page')
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage('Page must be a positive integer'),
+    query('limit')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Limit must be between 1 and 100'),
+    query('type')
+      .optional()
+      .isIn(['payment', 'withdrawal'])
+      .withMessage('Invalid payment type'),
+    query('provider')
+      .optional()
+      .isIn(['stripe', 'orange_money', 'afrimoney'])
+      .withMessage('Invalid provider'),
+    query('status')
+      .optional()
+      .isIn(['pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded'])
+      .withMessage('Invalid status'),
+    query('minAmount')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Minimum amount must be a non-negative number'),
+    query('maxAmount')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Maximum amount must be a non-negative number'),
+    validateRequest
+  ],
+  paymentController.getAllPayments
+);
+
+// Get payment statistics (admin only)
+router.get(
+  '/admin/statistics',
+  authenticate,
+  authorize(['admin', 'super_admin']),
+  paymentController.getPaymentStatistics
+);
+
+module.exports = router;

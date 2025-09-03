@@ -1,0 +1,100 @@
+const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
+const Payment = require('../models/payment.model');
+const Provider = require('../models/provider.model');
+const providerFactory = require('../providers/provider.factory');
+const { ApiError } = require('../middleware/errorHandler');
+const { logger } = require('../utils/logger');
+const { publishMessage } = require('../config/messageQueue');
+require('dotenv').config();
+
+/**
+ * Create a payment
+ * @param {Object} data - Payment data
+ * @returns {Promise<Object>} - Created payment
+ */
+const createPayment = async (data) => {
+  try {
+    const { 
+      userId, 
+      transactionId, 
+      provider, 
+      amount, 
+      currency = 'USD', 
+      description,
+      recipientInfo,
+      metadata = {},
+      ipAddress,
+      userAgent
+    } = data;
+    
+    // Validate amount
+    if (!amount || amount <= 0) {
+      throw new ApiError(400, 'Invalid amount');
+    }
+    
+    // Validate provider
+    if (!provider) {
+      throw new ApiError(400, 'Provider is required');
+    }
+    
+    // Check if provider is active
+    const providerDoc = await Provider.findOne({ code: provider, isActive: true });
+    
+    if (!providerDoc) {
+      throw new ApiError(400, `Payment provider '${provider}' is not available`);
+    }
+    
+    // Check if amount is within provider limits
+    if (amount < providerDoc.minAmount || amount > providerDoc.maxAmount) {
+      throw new ApiError(400, `Amount must be between ${providerDoc.minAmount} and ${providerDoc.maxAmount}`);
+    }
+    
+    // Check if currency is supported
+    if (providerDoc.supportedCurrencies.length > 0 && !providerDoc.supportedCurrencies.includes(currency)) {
+      throw new ApiError(400, `Currency '${currency}' is not supported by this provider`);
+    }
+    
+    // Check if KYC level is sufficient
+    if (providerDoc.requiredKycLevel !== 'none') {
+      try {
+        // Call KYC service to verify user's KYC level
+        const kycResponse = await axios.get(
+          `${process.env.KYC_SERVICE_URL}/verify/${userId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'x-service-key': process.env.SERVICE_KEY
+            }
+          }
+        );
+        
+        if (!kycResponse.data.success) {
+          throw new ApiError(403, 'KYC verification failed');
+        }
+        
+        const userKycLevel = kycResponse.data.kycLevel;
+        const requiredLevel = providerDoc.requiredKycLevel;
+        
+        // Check if user's KYC level is sufficient
+        const kycLevels = ['none', 'tier_1', 'tier_2', 'tier_3'];
+        const userKycIndex = kycLevels.indexOf(userKycLevel);
+        const requiredKycIndex = kycLevels.indexOf(requiredLevel);
+        
+        if (userKycIndex < requiredKycIndex) {
+          throw new ApiError(403, `KYC level '${requiredLevel}' is required for this payment method`);
+        }
+      } catch (error) {
+        if (error instanceof ApiError) {
+          throw error;
+        }
+        
+        logger.error(`KYC verification error: ${error.message}`);
+        throw new ApiError(500, 'Failed to verify KYC level');
+      }
+    }
+    
+    // Calculate fee
+    const fee = providerFactory.calculateFee(provider, amount, currency);
+    
+    // Create payment record

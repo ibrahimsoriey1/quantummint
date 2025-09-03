@@ -1,0 +1,2 @@
+./api-gateway/src/config/redis.js
+./auth-service/src/config/redis.js

@@ -1,0 +1,313 @@
+# QuantumMint
+
+A comprehensive system for generating digital money and enabling cash-out functionality through Orange Money, AfriMoney, and Stripe.
+
+## Features
+
+- User authentication and authorization with two-factor authentication
+- Digital money generation with multiple methods and verification
+- Transaction processing with comprehensive tracking
+- Integration with multiple payment providers (Orange Money, AfriMoney, Stripe)
+- KYC (Know Your Customer) verification with tiered approach
+- Advanced security measures and fraud detection
+- Admin dashboard for monitoring and management
+- user dashboard
+- Comprehensive error handling and logging
+- API documentation with Swagger
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v16.x or later)
+- npm (v8.x or later)
+- MongoDB (v5.0 or later)
+- Redis (v6.x or later)
+- RabbitMQ (v3.9 or later)
+- Docker and Docker Compose (optional)
+- AWS S3 account (for KYC document storage)
+
+### Installation
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/quantummint.git
+   cd quantummint
+   ```
+
+2. Install dependencies
+   ```bash
+   npm run install:all
+   ```
+
+3. Configure environment variables
+   ```bash
+   # Copy example environment files for each service
+   cp auth-service/.env.example auth-service/.env
+   cp money-generation/.env.example money-generation/.env
+   cp transaction-service/.env.example transaction-service/.env
+   cp payment-integration/.env.example payment-integration/.env
+   cp kyc-service/.env.example kyc-service/.env
+   cp api-gateway/.env.example api-gateway/.env
+   
+   # Edit .env files with your configuration
+   ```
+
+4. Start all services
+   ```bash
+   npm run start:all
+   ```
+
+### Docker Setup
+
+1. Build Docker images
+   ```bash
+   npm run docker:build
+   ```
+
+2. Start Docker containers
+   ```bash
+   npm run docker:up
+   ```
+
+3. Stop Docker containers
+   ```bash
+   npm run docker:down
+   ```
+
+## API Documentation
+
+API documentation is available at `/api-docs` when the system is running. This provides a comprehensive Swagger UI interface for exploring and testing all API endpoints.
+
+## Services
+
+### Authentication Service
+
+The authentication service provides secure user registration, login, and session management. It includes:
+
+- JWT-based authentication
+- Two-factor authentication
+- Password management
+- Email verification
+- Role-based access control
+
+### Money Generation Service
+
+The money generation service is responsible for creating digital money in user wallets according to predefined rules and limits. It includes:
+
+- Multiple generation methods (standard, accelerated, premium)
+- Generation limits and controls
+- Verification system
+- Fraud detection
+- Wallet management
+- KYC verification integration
+
+### Transaction Service
+
+The transaction service processes financial transactions within the system. It includes:
+
+- Transaction recording
+- Balance updates
+- Transaction history
+- Fee calculation
+
+### Payment Integration Service
+
+The payment integration service enables users to cash out their digital money to external payment providers. It includes:
+
+- Integration with Orange Money
+- Integration with AfriMoney
+- Integration with Stripe
+- Webhook handling
+- Transaction status synchronization
+- KYC verification integration
+
+### KYC Service
+
+The KYC (Know Your Customer) service manages user identity verification and compliance with regulatory requirements. It includes:
+
+- Tiered verification approach (TIER_1, TIER_2, TIER_3)
+- Document upload and verification
+- Admin verification workflow
+- Secure document storage with AWS S3
+- Integration with money generation and payment services
+
+### API Gateway
+
+The API Gateway serves as the entry point for all client requests. It includes:
+
+- Request routing
+- Authentication middleware
+- Rate limiting
+- API documentation with Swagger
+- Security headers
+
+### Shared Utilities
+
+The shared utilities package provides common functionality used across all services:
+
+- Error handling
+- Logging
+- Validation
+- Security utilities
+
+## Project Structure
+
+- `api-gateway`: API Gateway service
+- `auth-service`: Authentication service
+- `money-generation`: Money generation service
+- `transaction-service`: Transaction processing service
+- `payment-integration`: Payment provider integration service
+- `kyc-service`: KYC verification service
+- `frontend`: React frontend application
+- `shared`: Shared libraries and utilities
+- `docker`: Docker configuration files
+- `test`: Integration test scripts and documentation
+- `docs`: Documentation files
+
+## Development
+
+- Run tests: `npm run test:all`
+- Start individual services: `npm run start:[service-name]`
+- Lint code: `npm run lint`
+- Format code: `npm run format`
+
+## Testing
+
+### Integration Testing
+
+The system includes comprehensive integration tests to verify that all components work together correctly:
+
+1. **Setup Test Environment**
+   ```bash
+   cd quantummint/test
+   ./setup_test_env.sh
+   ```
+
+2. **Run All Tests**
+   ```bash
+   npm test
+   ```
+
+3. **Run Specific Test Suites**
+   ```bash
+   npm run test:auth         # Authentication tests
+   npm run test:generation   # Money generation tests
+   npm run test:transactions # Transaction tests
+   npm run test:payments     # Payment integration tests
+   npm run test:kyc          # KYC verification tests
+   npm run test:admin        # Admin dashboard tests
+   ```
+
+### Test Documentation
+
+- `test/README.md`: Testing documentation and instructions
+- `test/TEST_RESULTS.md`: Detailed test results
+- `TESTING_SUMMARY.md`: Overall testing summary
+
+## Documentation
+
+- `api-documentation.md`: API endpoints and usage
+- `system_architecture.md`: System architecture and design
+- `database_schema.md`: Database collections and relationships
+- `frontend_user_guide.md`: Guide for end users
+- `admin_dashboard_guide.md`: Guide for system administrators
+- `kyc_user_guide.md`: Guide for KYC verification process
+- `kyc_admin_guide.md`: Guide for KYC verification administration
+- `PROJECT_STATUS.md`: Current project status and next steps
+- `setup_environment.md`: Guide for setting up the development environment
+- `IMPLEMENTATION_SUMMARY.md`: Implementation details
+- `FINAL_SUMMARY.md`: Project summary
+
+## Security Features
+
+- JWT-based authentication with short-lived access tokens and refresh tokens
+- Two-factor authentication using TOTP
+- Password hashing with bcrypt
+- Rate limiting to prevent brute force attacks
+- Input validation to prevent injection attacks
+- CORS configuration to control access
+- Security headers to protect against common web vulnerabilities
+- Webhook signature verification
+- Fraud detection for suspicious activities
+- Secure document storage with encryption
+- KYC verification for regulatory compliance
+
+## KYC Verification
+
+The system implements a tiered KYC approach:
+
+### Tier 1: Basic Verification
+- Email verification
+- Phone verification
+- Basic personal information
+- Suitable for low to medium transaction volumes
+
+### Tier 2: Identity Verification
+- Government-issued ID verification
+- Address verification
+- Enhanced personal information
+- Suitable for higher transaction volumes
+
+### Tier 3: Full Verification
+- Advanced identity verification
+- Proof of address
+- Additional documentation as required
+- Suitable for premium users and high-value transactions
+
+KYC verification is required for certain operations based on amount and method:
+
+### Money Generation
+
+| Amount Range | Generation Method | Required KYC Level |
+|--------------|-------------------|-------------------|
+| $0 - $1,000  | Standard          | None              |
+| $0 - $2,000  | Accelerated       | None              |
+| $0 - $1,000  | Premium           | Tier 1            |
+| $1,000 - $5,000 | Standard       | Tier 1            |
+| $2,000 - $5,000 | Accelerated    | Tier 1            |
+| $1,000 - $5,000 | Premium        | Tier 1            |
+| $5,000+      | Any               | Tier 2            |
+
+### Cash-Out Operations
+
+| Amount Range | Provider        | Required KYC Level |
+|--------------|-----------------|-------------------|
+| $0 - $100    | Any             | None              |
+| $100 - $1,000 | Any            | Tier 1            |
+| $1,000+      | Any             | Tier 2            |
+
+## Payment Providers
+
+### Orange Money
+
+Orange Money integration allows users to cash out to Orange Money accounts in the following countries:
+- Cameroon
+- Côte d'Ivoire
+- Mali
+- Senegal
+- Guinea
+- Madagascar
+- DRC
+
+### AfriMoney
+
+AfriMoney integration allows users to cash out to AfriMoney accounts in the following countries:
+- Sierra Leone
+- DRC
+- Uganda
+- The Gambia
+
+### Stripe
+
+Stripe integration allows users to cash out to bank accounts and cards in the following regions:
+- United States
+- Canada
+- United Kingdom
+- Australia
+- European Union
+- Sierra Leone
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details

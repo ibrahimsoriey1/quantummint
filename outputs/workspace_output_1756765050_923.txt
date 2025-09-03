@@ -1,0 +1,5 @@
+total 4
+drwxr-xr-x 3 root root   39 Sep  1 22:15 .
+drwxr-xr-x 8 root root  107 Sep  1 22:11 ..
+drwxr-xr-x 2 root root   23 Sep  1 22:15 swagger
+-rw-r--r-- 1 root root 1903 Sep  1 22:13 swagger.js

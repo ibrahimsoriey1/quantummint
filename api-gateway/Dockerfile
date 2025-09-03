@@ -1,9 +1,17 @@
-FROM node:20-alpine
-WORKDIR /app
+FROM node:18-alpine
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Install app dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install
+
+# Bundle app source
 COPY . .
+
+# Expose port
 EXPOSE 3000
-CMD ["node", "server.js"]
 
-
+# Start the service
+CMD ["node", "src/server.js"]

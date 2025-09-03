@@ -1,0 +1,6 @@
+total 12
+drwxr-xr-x  3 root root   57 Sep  1 22:10 .
+drwxr-xr-x 13 root root 4096 Sep  1 22:15 ..
+-rw-r--r--  1 root root  636 Sep  1 22:10 .env.example
+-rw-r--r--  1 root root  955 Sep  1 22:10 package.json
+drwxr-xr-x  8 root root  107 Sep  1 22:11 src

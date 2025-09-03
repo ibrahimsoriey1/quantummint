@@ -1,0 +1,429 @@
+paths:
+  /generation:
+    post:
+      tags:
+        - Generation
+      summary: Generate money
+      description: Create a new money generation request
+      operationId: generateMoney
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - method
+                - purpose
+              properties:
+                amount:
+                  type: number
+                  description: Amount to generate
+                  example: 1000
+                method:
+                  type: string
+                  enum: [standard, express, premium]
+                  description: Generation method
+                  example: standard
+                purpose:
+                  type: string
+                  description: Purpose of generation
+                  example: Personal expenses
+      responses:
+        '201':
+          description: Generation request created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Generation request submitted successfully
+                  generation:
+                    $ref: '#/components/schemas/Generation'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                insufficientKYC:
+                  value:
+                    success: false
+                    status: 400
+                    message: KYC verification required for this generation method
+                limitExceeded:
+                  value:
+                    success: false
+                    status: 400
+                    message: Generation amount exceeds the limit for this method
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /generation/history:
+    get:
+      tags:
+        - Generation
+      summary: Get generation history
+      description: Get a list of all generation requests for the current user
+      operationId: getGenerationHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [pending, processing, completed, failed, cancelled]
+        - name: method
+          in: query
+          description: Filter by method
+          schema:
+            type: string
+            enum: [standard, express, premium]
+        - name: startDate
+          in: query
+          description: Filter by start date (ISO format)
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: Filter by end date (ISO format)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Generation history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  generations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Generation'
+                  pagination:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 20
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      pages:
+                        type: integer
+                        example: 2
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /generation/{id}:
+    get:
+      tags:
+        - Generation
+      summary: Get generation details
+      description: Get details of a specific generation request
+      operationId: getGenerationDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Generation ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Generation details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  generation:
+                    $ref: '#/components/schemas/Generation'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /generation/{id}/cancel:
+    post:
+      tags:
+        - Generation
+      summary: Cancel generation
+      description: Cancel a pending generation request
+      operationId: cancelGeneration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Generation ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Generation cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Generation request cancelled successfully
+                  generation:
+                    $ref: '#/components/schemas/Generation'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                status: 400
+                message: Only pending generation requests can be cancelled
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /generation/stats:
+    get:
+      tags:
+        - Generation
+      summary: Get generation statistics
+      description: Get statistics about the user's generation activity
+      operationId: getGenerationStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Generation statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  stats:
+                    type: object
+                    properties:
+                      totalGenerated:
+                        type: number
+                        example: 10000
+                      totalFees:
+                        type: number
+                        example: 500
+                      totalNetAmount:
+                        type: number
+                        example: 9500
+                      generationCount:
+                        type: integer
+                        example: 10
+                      monthlyGenerated:
+                        type: number
+                        example: 3000
+                      averageAmount:
+                        type: number
+                        example: 1000
+                      methodBreakdown:
+                        type: object
+                        properties:
+                          standard:
+                            type: integer
+                            example: 5
+                          express:
+                            type: integer
+                            example: 3
+                          premium:
+                            type: integer
+                            example: 2
+                      statusBreakdown:
+                        type: object
+                        properties:
+                          pending:
+                            type: integer
+                            example: 1
+                          processing:
+                            type: integer
+                            example: 1
+                          completed:
+                            type: integer
+                            example: 8
+                          failed:
+                            type: integer
+                            example: 0
+                          cancelled:
+                            type: integer
+                            example: 0
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /generation/methods:
+    get:
+      tags:
+        - Generation
+      summary: Get generation methods
+      description: Get information about available generation methods
+      operationId: getGenerationMethods
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Generation methods retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  methods:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: standard
+                        name:
+                          type: string
+                          example: Standard Generation
+                        description:
+                          type: string
+                          example: Generate money at the standard rate with no additional fees.
+                        fee:
+                          type: number
+                          example: 0
+                        minAmount:
+                          type: number
+                          example: 10
+                        maxAmount:
+                          type: number
+                          example: 1000
+                        processingTime:
+                          type: string
+                          example: 24 hours
+                        kycRequired:
+                          type: boolean
+                          example: false
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /generation/limits:
+    get:
+      tags:
+        - Generation
+      summary: Get generation limits
+      description: Get the current user's generation limits
+      operationId: getGenerationLimits
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Generation limits retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  limits:
+                    type: object
+                    properties:
+                      daily:
+                        type: number
+                        example: 5000
+                      weekly:
+                        type: number
+                        example: 20000
+                      monthly:
+                        type: number
+                        example: 50000
+                      remaining:
+                        type: object
+                        properties:
+                          daily:
+                            type: number
+                            example: 3000
+                          weekly:
+                            type: number
+                            example: 15000
+                          monthly:
+                            type: number
+                            example: 40000
+                      kycStatus:
+                        type: string
+                        enum: [not_submitted, pending, approved, rejected]
+                        example: approved
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'

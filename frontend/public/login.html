@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumMint - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6c63ff;
+            --secondary-color: #4d44ff;
+            --accent-color: #00d9ff;
+            --dark-color: #2a2a72;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --gray-color: #6c757d;
+            --white-color: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            box-shadow: var(--shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: var(--white-color);
+            position: relative;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            padding: 40px;
+            color: var(--white-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 1;
+        }
+
+        .left-panel h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .left-panel p {
+            font-size: 1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+        }
+
+        .features {
+            margin-top: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .feature i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h2 {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+            outline: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+            cursor: pointer;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            margin-right: 5px;
+        }
+
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            margin-top: 15px;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+        }
+
+        .social-login {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-login p {
+            color: var(--gray-color);
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .social-login p::before,
+        .social-login p::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background-color: #ddd;
+        }
+
+        .social-login p::before {
+            left: 0;
+        }
+
+        .social-login p::after {
+            right: 0;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-icon.google {
+            color: #DB4437;
+        }
+
+        .social-icon.facebook {
+            color: #4267B2;
+        }
+
+        .social-icon.apple {
+            color: #000000;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .register-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .register-link a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .two-factor {
+            display: none;
+        }
+
+        .verification-code {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .verification-code input {
+            width: 40px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+        }
+
+        .verification-code input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+            outline: none;
+        }
+
+        .resend-code {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .resend-code a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .resend-code a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                max-width: 500px;
+            }
+
+            .left-panel {
+                padding: 30px;
+            }
+
+            .right-panel {
+                padding: 30px;
+            }
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h1>QuantumMint</h1>
+            <p>Welcome to the future of digital money generation. QuantumMint provides a secure and innovative platform for creating and managing digital currency.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Advanced security with two-factor authentication</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-bolt"></i>
+                    <span>Fast and efficient money generation</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Seamless transactions and transfers</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Real-time analytics and reporting</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="login-form">
+                <div class="login-header">
+                    <h2>Welcome Back</h2>
+                    <p>Please sign in to access your account</p>
+                </div>
+                
+                <div class="alert alert-danger" id="error-message"></div>
+                <div class="alert alert-success" id="success-message"></div>
+                
+                <div class="login-credentials" id="login-credentials">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" class="form-control" placeholder="Enter your email">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" class="form-control" placeholder="Enter your password">
+                            <span class="password-toggle" id="password-toggle">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-options">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember-me">
+                            <label for="remember-me">Remember me</label>
+                        </div>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+                    
+                    <button type="button" class="btn" id="login-btn">Sign In</button>
+                    <button type="button" class="btn btn-outline" id="register-btn">Create Account</button>
+                </div>
+                
+                <div class="two-factor" id="two-factor">
+                    <div class="login-header">
+                        <h2>Two-Factor Authentication</h2>
+                        <p>Enter the verification code sent to your device</p>
+                    </div>
+                    
+                    <div class="verification-code">
+                        <input type="text" maxlength="1" class="code-input">
+                        <input type="text" maxlength="1" class="code-input">
+                        <input type="text" maxlength="1" class="code-input">
+                        <input type="text" maxlength="1" class="code-input">
+                        <input type="text" maxlength="1" class="code-input">
+                        <input type="text" maxlength="1" class="code-input">
+                    </div>
+                    
+                    <button type="button" class="btn" id="verify-btn">Verify Code</button>
+                    
+                    <div class="resend-code">
+                        <span>Didn't receive a code?</span>
+                        <a href="#" id="resend-code">Resend Code</a>
+                    </div>
+                </div>
+                
+                <div class="social-login">
+                    <p>Or sign in with</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon google">
+                            <i class="fab fa-google"></i>
+                        </a>
+                        <a href="#" class="social-icon facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon apple">
+                            <i class="fab fa-apple"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="register-link">
+                    <p>Don't have an account? <a href="register.html">Sign up now</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle password visibility
+            const passwordToggle = document.getElementById('password-toggle');
+            const passwordInput = document.getElementById('password');
+            
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle eye icon
+                const eyeIcon = passwordToggle.querySelector('i');
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+            
+            // Login button click event
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.addEventListener('click', function() {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const errorMessage = document.getElementById('error-message');
+                
+                // Simple validation
+                if (!email || !password) {
+                    errorMessage.textContent = 'Please enter both email and password';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Simulate API call
+                simulateLogin(email, password);
+            });
+            
+            // Register button click event
+            const registerBtn = document.getElementById('register-btn');
+            registerBtn.addEventListener('click', function() {
+                window.location.href = 'register.html';
+            });
+            
+            // Verify button click event
+            const verifyBtn = document.getElementById('verify-btn');
+            verifyBtn.addEventListener('click', function() {
+                const codeInputs = document.querySelectorAll('.code-input');
+                let code = '';
+                
+                codeInputs.forEach(input => {
+                    code += input.value;
+                });
+                
+                if (code.length !== 6) {
+                    const errorMessage = document.getElementById('error-message');
+                    errorMessage.textContent = 'Please enter a valid 6-digit code';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Simulate verification
+                simulateVerification(code);
+            });
+            
+            // Resend code click event
+            const resendCode = document.getElementById('resend-code');
+            resendCode.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const successMessage = document.getElementById('success-message');
+                successMessage.textContent = 'A new verification code has been sent';
+                successMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            });
+            
+            // Handle code input auto-focus
+            const codeInputs = document.querySelectorAll('.code-input');
+            codeInputs.forEach((input, index) => {
+                input.addEventListener('keyup', function(e) {
+                    if (e.key >= 0 && e.key <= 9) {
+                        if (index < codeInputs.length - 1) {
+                            codeInputs[index + 1].focus();
+                        }
+                    } else if (e.key === 'Backspace') {
+                        if (index > 0) {
+                            codeInputs[index - 1].focus();
+                        }
+                    }
+                });
+            });
+            
+            // Simulate login API call
+            function simulateLogin(email, password) {
+                // Show loading state
+                loginBtn.textContent = 'Signing in...';
+                loginBtn.disabled = true;
+                
+                // Simulate API delay
+                setTimeout(() => {
+                    // For demo purposes, show 2FA for specific email
+                    if (email === 'demo@example.com' && password === 'password') {
+                        document.getElementById('login-credentials').style.display = 'none';
+                        document.getElementById('two-factor').style.display = 'block';
+                        document.getElementById('error-message').style.display = 'none';
+                    } else {
+                        // Show error for invalid credentials
+                        const errorMessage = document.getElementById('error-message');
+                        errorMessage.textContent = 'Invalid email or password';
+                        errorMessage.style.display = 'block';
+                        
+                        // Reset button state
+                        loginBtn.textContent = 'Sign In';
+                        loginBtn.disabled = false;
+                    }
+                }, 1500);
+            }
+            
+            // Simulate verification API call
+            function simulateVerification(code) {
+                // Show loading state
+                verifyBtn.textContent = 'Verifying...';
+                verifyBtn.disabled = true;
+                
+                // Simulate API delay
+                setTimeout(() => {
+                    // For demo purposes, accept any 6-digit code
+                    if (code === '123456') {
+                        const successMessage = document.getElementById('success-message');
+                        successMessage.textContent = 'Verification successful! Redirecting...';
+                        successMessage.style.display = 'block';
+                        document.getElementById('error-message').style.display = 'none';
+                        
+                        // Redirect after success
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    } else {
+                        // Show error for invalid code
+                        const errorMessage = document.getElementById('error-message');
+                        errorMessage.textContent = 'Invalid verification code';
+                        errorMessage.style.display = 'block';
+                        
+                        // Reset button state
+                        verifyBtn.textContent = 'Verify Code';
+                        verifyBtn.disabled = false;
+                    }
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>
