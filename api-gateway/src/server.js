@@ -82,6 +82,18 @@ app.get('/csrf-token', (req, res) => {
   return res.status(200).json({ csrfToken });
 });
 
+// Also expose CSRF token under /api prefix to work with CRA proxy baseURL '/api'
+app.get('/api/csrf-token', (req, res) => {
+  const csrfToken = req.csrfToken();
+  res.cookie('XSRF-TOKEN', csrfToken, {
+    httpOnly: false,
+    sameSite: 'Lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+  });
+  return res.status(200).json({ csrfToken });
+});
+
 // Advanced security middleware
 app.use(securityHeadersMiddleware); // Additional security headers
 app.use(ipRestrictionMiddleware); // IP-based restrictions
