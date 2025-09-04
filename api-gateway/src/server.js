@@ -26,10 +26,20 @@ const PORT = process.env.PORT || 3000;
 setupRedis();
 
 // Configure CORS
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : ['http://localhost:3000', 'http://localhost:3001'];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'X-CSRF-Token',
+    'X-XSRF-Token'
+  ],
   credentials: true,
   maxAge: 86400 // 24 hours
 };
@@ -59,9 +69,17 @@ app.use(
   csurf({ cookie: true, ignoreMethods: ['GET', 'HEAD', 'OPTIONS'] })
 );
 
-// Provide CSRF token for clients
+// Provide CSRF token for clients and set readable cookie for axios XSRF mechanism
 app.get('/csrf-token', (req, res) => {
-  return res.status(200).json({ csrfToken: req.csrfToken() });
+  const csrfToken = req.csrfToken();
+  // Set cookie so frontend axios (xsrfCookieName) can read and auto-send header
+  res.cookie('XSRF-TOKEN', csrfToken, {
+    httpOnly: false, // must be readable by browser to set header
+    sameSite: 'Lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+  });
+  return res.status(200).json({ csrfToken });
 });
 
 // Advanced security middleware
