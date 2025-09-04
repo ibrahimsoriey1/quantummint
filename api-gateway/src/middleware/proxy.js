@@ -1,7 +1,7 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { logger } = require('../utils/logger');
 const { services, SERVICE_KEY } = require('../config/services');
-const { requestIdHeaderName } = require('../../../shared');
+const { requestIdHeaderName } = require('/usr/src/shared');
 
 /**
  * Create a proxy middleware for a service

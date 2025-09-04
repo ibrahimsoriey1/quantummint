@@ -70,6 +70,7 @@ services:
       - RATE_LIMIT_MAX_REQUESTS=100
     volumes:
       - ../api-gateway:/usr/src/app
+      - ../shared:/usr/src/shared
       - /usr/src/app/node_modules
     depends_on:
       - redis
@@ -104,6 +105,7 @@ services:
       - FRONTEND_URL=http://localhost:3006
     volumes:
       - ../auth-service:/usr/src/app
+      - ../shared:/usr/src/shared
       - /usr/src/app/node_modules
     depends_on:
       - mongodb
@@ -131,6 +133,7 @@ services:
       - TRANSACTION_SERVICE_URL=http://transaction-service:3003
     volumes:
       - ../money-generation:/usr/src/app
+      - ../shared:/usr/src/shared
       - /usr/src/app/node_modules
     depends_on:
       - mongodb
@@ -158,6 +161,7 @@ services:
       - AUTH_SERVICE_URL=http://auth-service:3001
     volumes:
       - ../transaction-service:/usr/src/app
+      - ../shared:/usr/src/shared
       - /usr/src/app/node_modules
     depends_on:
       - mongodb
@@ -192,6 +196,7 @@ services:
       - AFRIMONEY_API_SECRET=${AFRIMONEY_API_SECRET}
     volumes:
       - ../payment-integration:/usr/src/app
+      - ../shared:/usr/src/shared
       - /usr/src/app/node_modules
     depends_on:
       - mongodb
@@ -222,6 +227,7 @@ services:
       - STORAGE_PATH=/usr/src/app/uploads
     volumes:
       - ../kyc-service:/usr/src/app
+      - ../shared:/usr/src/shared
       - /usr/src/app/node_modules
       - kyc_uploads:/usr/src/app/uploads
     depends_on:
