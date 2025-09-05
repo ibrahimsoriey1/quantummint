@@ -1,252 +1,321 @@
-# 🚀 QuantumMint Deployment Guide
+# QuantumMint Platform - Deployment Guide
 
-## Overview
-This guide will help you deploy your updated QuantumMint application with the new database schema and authentication fixes.
+## 🚀 **Production Deployment Options**
 
-## ✅ What's Been Fixed
-- **Authentication Issues**: Fixed "unexpected error occurred" during login/registration
-- **Database Schema**: Updated to use `passwordHash` instead of `password`
-- **User Model**: Enhanced with new fields and validation
-- **Shared Modules**: Fixed dependency issues
+### **Option 1: Docker Compose (Recommended for Development/Testing)**
 
-## 🐳 Docker Deployment
-
-### Prerequisites
+#### **Prerequisites:**
 - Docker and Docker Compose installed
-- MongoDB running (if not using Docker)
-- Redis running (if not using Docker)
+- At least 4GB RAM available
+- Ports 80, 3000-3005, 27017 available
 
-### Step 1: Environment Variables
-Create a `.env` file in the `docker` directory with the following variables:
-
+#### **Quick Start:**
 ```bash
-# Database
-MONGO_USERNAME=your_mongo_username
-MONGO_PASSWORD=your_mongo_password
+# Clone the repository
+git clone <repository-url>
+cd quantummint
 
-# JWT Secrets
-JWT_SECRET=your_jwt_secret_key
-REFRESH_TOKEN_SECRET=your_refresh_token_secret
+# Start all services
+docker-compose up -d
 
-# Email Configuration
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_email_password
-EMAIL_FROM=noreply@quantummint.com
+# Check service status
+docker-compose ps
 
-# Service Configuration
-SERVICE_KEY=your_service_key
-CORS_ORIGIN=http://localhost:3006
-FRONTEND_URL=http://localhost:3006
-
-# Payment Providers (Optional)
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-ORANGE_MONEY_API_KEY=your_orange_money_api_key
-ORANGE_MONEY_API_SECRET=your_orange_money_api_secret
-AFRIMONEY_API_KEY=your_afrimoney_api_key
-AFRIMONEY_API_SECRET=your_afrimoney_api_secret
-
-# Storage (Optional)
-STORAGE_TYPE=local
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-AWS_REGION=us-east-1
-AWS_S3_BUCKET=your_s3_bucket
-
-# RabbitMQ
-RABBITMQ_USERNAME=your_rabbitmq_username
-RABBITMQ_PASSWORD=your_rabbitmq_password
-```
-
-### Step 2: Build and Deploy
-
-#### For Development:
-```bash
-cd docker
-docker-compose -f docker-compose.dev.yml up --build
-```
-
-#### For Production:
-```bash
-cd docker
-docker-compose -f docker-compose.prod.yml up --build -d
-```
-
-### Step 3: Verify Deployment
-
-Check if all services are running:
-```bash
-docker ps
-```
-
-You should see:
-- `quantummint-mongodb` (port 27017)
-- `quantummint-redis` (port 6379)
-- `quantummint-rabbitmq` (ports 5672, 15672)
-- `quantummint-api-gateway` (port 3000)
-- `quantummint-auth-service` (port 3001)
-- `quantummint-money-generation` (port 3002)
-- `quantummint-transaction-service` (port 3003)
-- `quantummint-payment-integration` (port 3004)
-- `quantummint-kyc-service` (port 3005)
-- `quantummint-frontend` (port 3006)
-
-## 🔧 Manual Deployment (Without Docker)
-
-### Step 1: Start Dependencies
-```bash
-# Start MongoDB
-mongod
-
-# Start Redis
-redis-server
-```
-
-### Step 2: Start Services
-Open separate terminal windows for each service:
-
-```bash
-# Terminal 1 - Auth Service
-cd auth-service
-npm install
-npm start
-
-# Terminal 2 - API Gateway
-cd api-gateway
-npm install
-npm start
-
-# Terminal 3 - Money Generation Service
-cd money-generation
-npm install
-npm start
-
-# Terminal 4 - Transaction Service
-cd transaction-service
-npm install
-npm start
-
-# Terminal 5 - Payment Integration Service
-cd payment-integration
-npm install
-npm start
-
-# Terminal 6 - KYC Service
-cd kyc-service
-npm install
-npm start
-
-# Terminal 7 - Frontend
-cd frontend
-npm install
-npm start
-```
-
-## 🧪 Testing the Application
-
-### 1. Test Authentication
-- Navigate to `http://localhost:3006` (frontend)
-- Try to register a new user
-- Try to login with existing credentials
-- The "unexpected error occurred" message should be resolved
-
-### 2. Test API Endpoints
-```bash
-# Test registration
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "password123",
-    "firstName": "Test",
-    "lastName": "User"
-  }'
-
-# Test login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "password123"
-  }'
-```
-
-## 🔍 Troubleshooting
-
-### Common Issues:
-
-1. **"Unexpected error occurred" still appears**
-   - Check if auth-service is running on port 3001
-   - Check if API gateway is running on port 3000
-   - Verify database connection
-
-2. **Database connection errors**
-   - Ensure MongoDB is running
-   - Check connection string in environment variables
-   - Verify database credentials
-
-3. **Services not starting**
-   - Check if ports are already in use
-   - Verify all dependencies are installed
-   - Check logs for specific error messages
-
-### Logs:
-```bash
-# View service logs
-docker logs quantummint-auth-service
-docker logs quantummint-api-gateway
-docker logs quantummint-frontend
-
-# View all logs
+# View logs
 docker-compose logs -f
 ```
 
-## 📊 Monitoring
+#### **Access the Application:**
+- **Frontend**: http://localhost
+- **API Gateway**: http://localhost:3000
+- **Individual Services**: http://localhost:3001-3005
 
-### Health Checks:
-- API Gateway: `http://localhost:3000/health`
-- Auth Service: `http://localhost:3001/health`
-- Frontend: `http://localhost:3006`
+### **Option 2: Manual Deployment**
 
-### API Documentation:
-- Swagger UI: `http://localhost:3000/api-docs`
+#### **Frontend Deployment:**
 
-## 🔄 Updates and Maintenance
-
-### To update the application:
-1. Pull latest changes
-2. Rebuild Docker images: `docker-compose up --build`
-3. Run migrations if needed
-4. Restart services
-
-### Database Backups:
+1. **Build the application:**
 ```bash
-# Backup MongoDB
-mongodump --uri="mongodb://username:password@localhost:27017/quantummint_auth"
-
-# Restore MongoDB
-mongorestore --uri="mongodb://username:password@localhost:27017/quantummint_auth" dump/
+cd frontend
+npm install
+npm run build
 ```
 
-## 🎯 Success Indicators
+2. **Deploy to web server:**
+```bash
+# Copy build folder to web server
+scp -r build/* user@server:/var/www/quantummint/
 
-Your deployment is successful when:
-- ✅ All Docker containers are running
-- ✅ Frontend loads without errors
-- ✅ User registration works
-- ✅ User login works
-- ✅ No "unexpected error occurred" messages
-- ✅ API endpoints respond correctly
-- ✅ Database connections are stable
+# Or use nginx
+sudo cp -r build/* /usr/share/nginx/html/
+```
 
-## 📞 Support
+3. **Configure nginx:**
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /usr/share/nginx/html;
+    index index.html;
 
-If you encounter any issues:
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+#### **Backend Services Deployment:**
+
+1. **Set up environment:**
+```bash
+# Create deployment directory
+mkdir -p /opt/quantummint
+cd /opt/quantummint
+
+# Clone repository
+git clone <repository-url> .
+```
+
+2. **Install dependencies:**
+```bash
+# Install Node.js dependencies for each service
+cd auth-service && npm install --production
+cd ../money-generation && npm install --production
+cd ../transaction-service && npm install --production
+cd ../payment-integration && npm install --production
+cd ../kyc-service && npm install --production
+cd ../api-gateway && npm install --production
+```
+
+3. **Set up MongoDB:**
+```bash
+# Install MongoDB
+sudo apt-get install mongodb
+
+# Start MongoDB
+sudo systemctl start mongodb
+sudo systemctl enable mongodb
+```
+
+4. **Configure environment variables:**
+```bash
+# Copy example environment files
+cp auth-service/env.example auth-service/.env
+cp money-generation/env.example money-generation/.env
+# ... repeat for all services
+
+# Edit environment files with production values
+nano auth-service/.env
+```
+
+5. **Start services with PM2:**
+```bash
+# Install PM2
+npm install -g pm2
+
+# Start all services
+pm2 start ecosystem.config.js
+
+# Save PM2 configuration
+pm2 save
+pm2 startup
+```
+
+### **Option 3: Cloud Deployment (AWS/Azure/GCP)**
+
+#### **AWS Deployment:**
+
+1. **Set up EC2 instances:**
+```bash
+# Launch EC2 instances for each service
+# Use t3.medium or larger for production
+```
+
+2. **Set up RDS for MongoDB:**
+```bash
+# Create MongoDB Atlas cluster or use DocumentDB
+```
+
+3. **Set up Application Load Balancer:**
+```bash
+# Configure ALB to route traffic to services
+```
+
+4. **Deploy with AWS CodeDeploy:**
+```bash
+# Set up CI/CD pipeline
+# Deploy automatically on code changes
+```
+
+## 🔧 **Environment Configuration**
+
+### **Production Environment Variables:**
+
+#### **Auth Service (.env):**
+```env
+NODE_ENV=production
+PORT=3001
+MONGODB_URI=mongodb://username:password@host:port/database
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_EXPIRES_IN=24h
+BCRYPT_ROUNDS=12
+EMAIL_SERVICE_API_KEY=your-email-service-key
+EMAIL_FROM=noreply@quantummint.com
+```
+
+#### **API Gateway (.env):**
+```env
+NODE_ENV=production
+PORT=3000
+AUTH_SERVICE_URL=http://auth-service:3001
+MONEY_GENERATION_SERVICE_URL=http://money-generation:3002
+TRANSACTION_SERVICE_URL=http://transaction-service:3003
+PAYMENT_INTEGRATION_SERVICE_URL=http://payment-integration:3004
+KYC_SERVICE_URL=http://kyc-service:3005
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+CORS_ORIGIN=https://your-domain.com
+```
+
+#### **Frontend (.env):**
+```env
+REACT_APP_API_URL=https://api.your-domain.com
+REACT_APP_ENVIRONMENT=production
+```
+
+## 🛡️ **Security Considerations**
+
+### **Production Security Checklist:**
+
+- [ ] Change all default passwords and secrets
+- [ ] Use HTTPS with SSL certificates
+- [ ] Configure firewall rules
+- [ ] Set up rate limiting
+- [ ] Enable CORS properly
+- [ ] Use environment variables for secrets
+- [ ] Set up monitoring and logging
+- [ ] Configure backup strategies
+- [ ] Enable database authentication
+- [ ] Set up intrusion detection
+
+### **SSL Certificate Setup:**
+```bash
+# Using Let's Encrypt
+sudo apt-get install certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com
+```
+
+## 📊 **Monitoring and Logging**
+
+### **Set up monitoring:**
+```bash
+# Install monitoring tools
+npm install -g pm2-logrotate
+
+# Configure log rotation
+pm2 install pm2-logrotate
+```
+
+### **Health checks:**
+```bash
+# Check service health
+curl http://localhost:3000/health
+curl http://localhost:3001/health
+# ... repeat for all services
+```
+
+## 🔄 **CI/CD Pipeline**
+
+### **GitHub Actions Example:**
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to server
+        run: |
+          # Deploy commands here
+```
+
+## 📈 **Performance Optimization**
+
+### **Frontend Optimization:**
+- Enable gzip compression
+- Use CDN for static assets
+- Implement caching strategies
+- Optimize bundle size
+
+### **Backend Optimization:**
+- Use connection pooling
+- Implement caching (Redis)
+- Optimize database queries
+- Use load balancing
+
+## 🚨 **Troubleshooting**
+
+### **Common Issues:**
+
+1. **Services not starting:**
+```bash
+# Check logs
+docker-compose logs service-name
+
+# Check port conflicts
+netstat -tulpn | grep :3000
+```
+
+2. **Database connection issues:**
+```bash
+# Check MongoDB status
+sudo systemctl status mongodb
+
+# Test connection
+mongo --host localhost --port 27017
+```
+
+3. **Frontend not loading:**
+```bash
+# Check nginx configuration
+sudo nginx -t
+
+# Check nginx logs
+sudo tail -f /var/log/nginx/error.log
+```
+
+## 📞 **Support**
+
+For deployment issues:
 1. Check the logs first
 2. Verify environment variables
-3. Ensure all dependencies are running
-4. Check network connectivity between services
+3. Ensure all services are running
+4. Check network connectivity
+5. Verify database connections
 
-The authentication issues have been resolved, and your application should now work properly with the updated database schema!
+## 🎯 **Production Checklist**
+
+- [ ] All services deployed and running
+- [ ] Database configured and accessible
+- [ ] SSL certificates installed
+- [ ] Environment variables configured
+- [ ] Monitoring set up
+- [ ] Backup strategy implemented
+- [ ] Security measures in place
+- [ ] Performance optimized
+- [ ] Documentation updated
+- [ ] Team trained on deployment process
+
+---
+
+**The QuantumMint platform is now ready for production deployment!** 🚀

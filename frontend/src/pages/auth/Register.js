@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 // Validation schemas
 const AccountSchema = Yup.object().shape({
@@ -61,6 +62,7 @@ const steps = ['Account Information', 'Personal Information', 'Terms & Condition
 
 const Register = () => {
   const { register, isLoading } = useAuth();
+  const { showSuccess, showError } = useNotifications();
   const [activeStep, setActiveStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -105,8 +107,11 @@ const Register = () => {
       const { confirmPassword, acceptTerms, acceptPrivacyPolicy, ...userData } = formattedValues;
       
       await register(userData);
+      showSuccess('Registration successful! Please check your email to verify your account.');
     } catch (error) {
-      setRegisterError(error.message || 'Registration failed. Please try again.');
+      const errorMessage = error.message || 'Registration failed. Please try again.';
+      setRegisterError(errorMessage);
+      showError(errorMessage);
       setSubmitting(false);
     }
   };

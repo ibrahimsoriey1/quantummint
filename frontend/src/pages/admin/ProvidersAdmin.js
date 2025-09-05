@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import api from '../../services/apiClient';
 import { handleApiError } from '../../utils/errorHandler';
+import DataTable from '../../components/common/DataTable';
 
 const ProvidersAdmin = () => {
   const [loading, setLoading] = useState(true);
@@ -28,38 +29,47 @@ const ProvidersAdmin = () => {
     return () => { isMounted = false; };
   }, []);
 
+  const columns = [
+    { field: 'name', headerName: 'Provider Name' },
+    { field: 'code', headerName: 'Code' },
+    { field: 'active', headerName: 'Status', type: 'status' },
+    { field: 'feeStructure', headerName: 'Fee Structure' }
+  ];
+
+  const actions = [
+    {
+      label: 'View Details',
+      icon: '👁️',
+      onClick: (provider) => console.log('View provider:', provider)
+    },
+    {
+      label: 'Edit Provider',
+      icon: '✏️',
+      onClick: (provider) => console.log('Edit provider:', provider)
+    },
+    {
+      label: 'Toggle Status',
+      icon: '🔄',
+      onClick: (provider) => console.log('Toggle provider status:', provider)
+    }
+  ];
+
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 2 }}>Admin - Providers</Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Paper>
-        {loading ? (
-          <Box p={3} display="flex" alignItems="center" gap={1}><CircularProgress size={20} /> Loading providers...</Box>
-        ) : (
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Code</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Fee Structure</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {providers.map((p) => (
-                  <TableRow key={p.code} hover>
-                    <TableCell>{p.name || '-'}</TableCell>
-                    <TableCell>{p.code}</TableCell>
-                    <TableCell>{p.active ? 'Active' : 'Inactive'}</TableCell>
-                    <TableCell>{p.feeStructure || 'N/A'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Paper>
+      <Typography variant="h4" sx={{ mb: 2 }}>Admin - Payment Providers</Typography>
+      <DataTable
+        data={providers}
+        columns={columns}
+        loading={loading}
+        error={error}
+        title="Payment Providers"
+        searchable={true}
+        exportable={true}
+        pagination={true}
+        pageSize={10}
+        actions={actions}
+        onRowClick={(provider) => console.log('Row clicked:', provider)}
+      />
     </Box>
   );
 };

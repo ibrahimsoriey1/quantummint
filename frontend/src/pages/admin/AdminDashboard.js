@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Alert } from '@mui/material';
 import api from '../../services/apiClient';
 import { handleApiError } from '../../utils/errorHandler';
+import TransactionChart from '../../components/charts/TransactionChart';
+import RealTimeUpdates from '../../components/common/RealTimeUpdates';
 
 const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -48,6 +50,7 @@ const AdminDashboard = () => {
         <Box display="flex" alignItems="center" gap={1}><CircularProgress size={20} /> Loading metrics...</Box>
       ) : (
         <Grid container spacing={3}>
+          {/* Stats Cards */}
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="subtitle2" color="text.secondary">Users</Typography>
@@ -71,6 +74,19 @@ const AdminDashboard = () => {
               <Typography variant="subtitle2" color="text.secondary">Providers</Typography>
               <Typography variant="h5">{stats.providers}</Typography>
             </Paper>
+          </Grid>
+
+          {/* Real-time Updates */}
+          <Grid item xs={12}>
+            <RealTimeUpdates />
+          </Grid>
+
+          {/* Transaction Chart */}
+          <Grid item xs={12}>
+            <TransactionChart 
+              title="Transaction Analytics" 
+              type="line"
+            />
           </Grid>
         </Grid>
       )}

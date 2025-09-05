@@ -1,11 +1,11 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import theme from './assets/styles/theme';
-import { useAuth } from './hooks/useAuth';
+import React, { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { CustomThemeProvider } from './contexts/ThemeContext';
+// import { useAuth } from './hooks/useAuth';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { initCsrf } from './utils/csrf';
 
 // Layout Components
 import MainLayout from './components/layouts/MainLayout';
@@ -49,11 +49,16 @@ import TransactionsAdmin from './pages/admin/TransactionsAdmin';
 import NotFound from './pages/errors/NotFound';
 
 function App() {
+  useEffect(() => {
+    // Initialize CSRF token on app startup
+    initCsrf();
+  }, []);
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <CustomThemeProvider>
       <ErrorBoundary>
-      <Routes>
+        <NotificationProvider>
+          <Routes future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         {/* Auth Routes */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
@@ -100,9 +105,10 @@ function App() {
         
         {/* Error Routes */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
+          </Routes>
+        </NotificationProvider>
       </ErrorBoundary>
-    </ThemeProvider>
+    </CustomThemeProvider>
   );
 }
 

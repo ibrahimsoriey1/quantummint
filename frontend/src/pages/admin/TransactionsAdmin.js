@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import api from '../../services/apiClient';
 import { handleApiError } from '../../utils/errorHandler';
+import DataTable from '../../components/common/DataTable';
 
 const TransactionsAdmin = () => {
   const [loading, setLoading] = useState(true);
@@ -28,40 +29,48 @@ const TransactionsAdmin = () => {
     return () => { isMounted = false; };
   }, []);
 
+  const columns = [
+    { field: 'reference', headerName: 'Reference' },
+    { field: 'type', headerName: 'Type' },
+    { field: 'amount', headerName: 'Amount' },
+    { field: 'status', headerName: 'Status', type: 'status' },
+    { field: 'createdAt', headerName: 'Created', type: 'datetime' }
+  ];
+
+  const actions = [
+    {
+      label: 'View Details',
+      icon: '👁️',
+      onClick: (transaction) => console.log('View transaction:', transaction)
+    },
+    {
+      label: 'Refund',
+      icon: '💰',
+      onClick: (transaction) => console.log('Refund transaction:', transaction)
+    },
+    {
+      label: 'Cancel',
+      icon: '❌',
+      onClick: (transaction) => console.log('Cancel transaction:', transaction)
+    }
+  ];
+
   return (
     <Box>
       <Typography variant="h4" sx={{ mb: 2 }}>Admin - Transactions</Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Paper>
-        {loading ? (
-          <Box p={3} display="flex" alignItems="center" gap={1}><CircularProgress size={20} /> Loading transactions...</Box>
-        ) : (
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Ref</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Amount</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Created</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((t) => (
-                  <TableRow key={t.id || t._id} hover>
-                    <TableCell>{t.reference || '-'}</TableCell>
-                    <TableCell>{t.type || '-'}</TableCell>
-                    <TableCell>{t.amount ?? '-'}</TableCell>
-                    <TableCell>{t.status || '-'}</TableCell>
-                    <TableCell>{t.createdAt ? new Date(t.createdAt).toLocaleString() : '-'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Paper>
+      <DataTable
+        data={rows}
+        columns={columns}
+        loading={loading}
+        error={error}
+        title="Transactions"
+        searchable={true}
+        exportable={true}
+        pagination={true}
+        pageSize={15}
+        actions={actions}
+        onRowClick={(transaction) => console.log('Row clicked:', transaction)}
+      />
     </Box>
   );
 };

@@ -29,6 +29,18 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       // Let callers handle redirect via context
     }
+    
+    // Handle CSRF token errors
+    if (error?.response?.status === 403 && error?.response?.data?.message?.includes('CSRF')) {
+      // Try to refresh CSRF token and retry the request
+      return api.get('/csrf-token').then(() => {
+        // Retry the original request
+        return api.request(error.config);
+      }).catch(() => {
+        return Promise.reject(error);
+      });
+    }
+    
     return Promise.reject(error);
   }
 );

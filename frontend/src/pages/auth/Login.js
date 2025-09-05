@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 // Validation schema
 const LoginSchema = Yup.object().shape({
@@ -28,6 +29,7 @@ const LoginSchema = Yup.object().shape({
 
 const Login = () => {
   const { login, isLoading } = useAuth();
+  const { showSuccess, showError } = useNotifications();
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
 
@@ -35,8 +37,11 @@ const Login = () => {
     try {
       setLoginError('');
       await login(values);
+      showSuccess('Welcome back! You have been successfully logged in.');
     } catch (error) {
-      setLoginError(error.message || 'Login failed. Please try again.');
+      const errorMessage = error.message || 'Login failed. Please try again.';
+      setLoginError(errorMessage);
+      showError(errorMessage);
       setSubmitting(false);
     }
   };

@@ -39,6 +39,7 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import Logo from '../common/Logo';
+import ThemeToggle from '../common/ThemeToggle';
 
 const drawerWidth = 240;
 
@@ -154,6 +155,7 @@ const MainLayout = () => {
           <Box sx={{ flexGrow: 1 }} />
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <ThemeToggle />
             <IconButton
               color="inherit"
               aria-label="notifications"
