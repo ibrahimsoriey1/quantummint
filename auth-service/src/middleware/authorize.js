@@ -10,12 +10,16 @@ const authorize = (roles = []) => {
     if (!req.user || !req.user.role) {
       return next(new ApiError(401, 'Authentication required. Please log in.'));
     }
-    
+
+    // Normalize role comparison to be case-insensitive
+    const userRole = String(req.user.role).toLowerCase();
+    const allowedRoles = roles.map(r => String(r).toLowerCase());
+
     // Check if user's role is in the allowed roles
-    if (roles.length && !roles.includes(req.user.role)) {
+    if (allowedRoles.length && !allowedRoles.includes(userRole)) {
       return next(new ApiError(403, 'You do not have permission to perform this action.'));
     }
-    
+
     next();
   };
 };

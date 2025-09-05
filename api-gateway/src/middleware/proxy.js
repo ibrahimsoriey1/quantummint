@@ -13,9 +13,8 @@ const createServiceProxy = (serviceName, serviceUrl) => {
   return createProxyMiddleware({
     target: serviceUrl,
     changeOrigin: true,
-    pathRewrite: {
-      [`^/api/${serviceName}`]: '/api'
-    },
+    // Preserve the full path (e.g., /api/auth/login stays /api/auth/login)
+    pathRewrite: (path) => path,
     onProxyReq: (proxyReq, req, res) => {
       // Add service key header for internal communication
       proxyReq.setHeader('x-service-key', SERVICE_KEY);
@@ -37,9 +36,12 @@ const createServiceProxy = (serviceName, serviceUrl) => {
     },
     onError: (err, req, res) => {
       logger.error(`Proxy error: ${err.message}`);
-      res.status(500).json({
+      res.status(502).json({
         success: false,
-        message: `Service ${serviceName} is currently unavailable`
+        status: 502,
+        message: `Service ${serviceName} is currently unavailable`,
+        path: req.originalUrl,
+        method: req.method
       });
     }
   });

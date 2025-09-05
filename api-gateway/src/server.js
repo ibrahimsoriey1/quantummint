@@ -127,6 +127,17 @@ app.get('/ready', async (req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
+// Fallback 404 for unmatched routes (JSON response)
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    status: 404,
+    message: 'Requested resource was not found',
+    path: req.originalUrl,
+    method: req.method
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   logger.info(`API Gateway running on port ${PORT}`);

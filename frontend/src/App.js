@@ -27,6 +27,23 @@ import Transactions from './pages/Transactions';
 import Profile from './pages/Profile';
 import KYCVerification from './pages/KYCVerification';
 import PaymentMethods from './pages/PaymentMethods';
+import Settings from './pages/Settings';
+import Notifications from './pages/Notifications';
+import Security from './pages/Security';
+import Integrations from './pages/Integrations';
+import Reports from './pages/Reports';
+import Support from './pages/Support';
+import About from './pages/About';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Contact from './pages/Contact';
+import HelpCenter from './pages/HelpCenter';
+import Providers from './pages/Providers';
+import Balances from './pages/Balances';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UsersAdmin from './pages/admin/UsersAdmin';
+import ProvidersAdmin from './pages/admin/ProvidersAdmin';
+import TransactionsAdmin from './pages/admin/TransactionsAdmin';
 
 // Error Pages
 import NotFound from './pages/errors/NotFound';
@@ -60,6 +77,25 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/kyc" element={<KYCVerification />} />
           <Route path="/payment-methods" element={<PaymentMethods />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/security" element={<Security />} />
+          <Route path="/integrations" element={<Integrations />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/providers" element={<Providers />} />
+          <Route path="/balances" element={<Balances />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/help" element={<HelpCenter />} />
+
+          {/* Admin */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UsersAdmin />} />
+          <Route path="/admin/providers" element={<ProvidersAdmin />} />
+          <Route path="/admin/transactions" element={<TransactionsAdmin />} />
         </Route>
         
         {/* Error Routes */}

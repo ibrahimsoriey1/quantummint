@@ -183,6 +183,17 @@ userSchema.pre('save', async function(next) {
   }
 });
 
+// Normalize role and status to lowercase before validation/save
+userSchema.pre('validate', function(next) {
+  if (this.role && typeof this.role === 'string') {
+    this.role = this.role.toLowerCase();
+  }
+  if (this.status && typeof this.status === 'string') {
+    this.status = this.status.toLowerCase();
+  }
+  next();
+});
+
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.passwordHash);
