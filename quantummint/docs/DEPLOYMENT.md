@@ -53,7 +53,7 @@ This guide provides comprehensive instructions for deploying the QuantumMint dig
 
 ### Step 1: Clone Repository
 ```bash
-git clone https://github.com/your-org/quantummint.git
+git clone https://github.com/ibrahimsoriey1/quantummint.git
 cd quantummint
 ```
 
