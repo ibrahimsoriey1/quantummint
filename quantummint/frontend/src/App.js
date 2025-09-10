@@ -1,193 +1,136 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { refreshToken } from './store/slices/authSlice';
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
 
-// Layouts
-import MainLayout from './components/layouts/MainLayout';
-import AuthLayout from './components/layouts/AuthLayout';
+import { useAuth } from './contexts/AuthContext';
+import Layout from './components/Layout/Layout';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 
-// Pages
-import Dashboard from './pages/Dashboard';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import VerifyEmail from './pages/auth/VerifyEmail';
-import ResetPassword from './pages/auth/ResetPassword';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import Profile from './pages/Profile';
-import Wallet from './pages/Wallet';
-import GenerateMoney from './pages/GenerateMoney';
-import Transactions from './pages/Transactions';
-import CashOut from './pages/CashOut';
-import KYC from './pages/KYC';
-import NotFound from './pages/NotFound';
+// Auth Pages
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import ResetPassword from './pages/Auth/ResetPassword';
+import TwoFactorAuth from './pages/Auth/TwoFactorAuth';
 
-// Admin Pages
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminUsers from './pages/admin/Users';
-import AdminKYC from './pages/admin/KYC';
-import AdminTransactions from './pages/admin/Transactions';
+// Dashboard
+import Dashboard from './pages/Dashboard/Dashboard';
 
-// Protected Route Component
-const ProtectedRoute = ({ children, requiredRole = null }) => {
-  const { isAuthenticated, user, loading } = useSelector((state) => state.auth);
-  
+// Money Generation
+import MoneyGeneration from './pages/MoneyGeneration/MoneyGeneration';
+import GenerationHistory from './pages/MoneyGeneration/GenerationHistory';
+
+// Wallet
+import Wallet from './pages/Wallet/Wallet';
+import TransactionHistory from './pages/Wallet/TransactionHistory';
+
+// Payments
+import Payments from './pages/Payments/Payments';
+import PaymentHistory from './pages/Payments/PaymentHistory';
+
+// KYC
+import KYCVerification from './pages/KYC/KYCVerification';
+import DocumentUpload from './pages/KYC/DocumentUpload';
+import VerificationStatus from './pages/KYC/VerificationStatus';
+
+// Profile
+import Profile from './pages/Profile/Profile';
+import Settings from './pages/Profile/Settings';
+
+// Admin (if user has admin role)
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import UserManagement from './pages/Admin/UserManagement';
+import SystemSettings from './pages/Admin/SystemSettings';
+
+function App() {
+  const { isAuthenticated, user, loading } = useAuth();
+
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        Loading...
       </Box>
     );
   }
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-  
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/dashboard" />;
-  }
-  
-  return children;
-};
 
-const App = () => {
-  const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
-  
-  useEffect(() => {
-    dispatch(refreshToken());
-  }, [dispatch]);
-  
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-  
   return (
     <Routes>
-      {/* Auth Routes */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-      </Route>
-      
+      {/* Public Routes */}
+      <Route
+        path="/login"
+        element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />}
+      />
+      <Route
+        path="/register"
+        element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />}
+      />
+      <Route
+        path="/forgot-password"
+        element={!isAuthenticated ? <ForgotPassword /> : <Navigate to="/dashboard" />}
+      />
+      <Route
+        path="/reset-password/:token"
+        element={!isAuthenticated ? <ResetPassword /> : <Navigate to="/dashboard" />}
+      />
+      <Route
+        path="/2fa"
+        element={!isAuthenticated ? <TwoFactorAuth /> : <Navigate to="/dashboard" />}
+      />
+
       {/* Protected Routes */}
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-        
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/wallet"
-          element={
-            <ProtectedRoute>
-              <Wallet />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/generate"
-          element={
-            <ProtectedRoute>
-              <GenerateMoney />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/transactions"
-          element={
-            <ProtectedRoute>
-              <Transactions />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/cash-out"
-          element={
-            <ProtectedRoute>
-              <CashOut />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/kyc"
-          element={
-            <ProtectedRoute>
-              <KYC />
-            </ProtectedRoute>
-          }
-        />
-        
-        {/* Admin Routes */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/admin/users"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminUsers />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/admin/kyc"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminKYC />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/admin/transactions"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminTransactions />
-            </ProtectedRoute>
-          }
-        />
-      </Route>
-      
-      {/* 404 Route */}
-      <Route path="*" element={<NotFound />} />
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                
+                {/* Money Generation */}
+                <Route path="/generate" element={<MoneyGeneration />} />
+                <Route path="/generation-history" element={<GenerationHistory />} />
+                
+                {/* Wallet */}
+                <Route path="/wallet" element={<Wallet />} />
+                <Route path="/transactions" element={<TransactionHistory />} />
+                
+                {/* Payments */}
+                <Route path="/payments" element={<Payments />} />
+                <Route path="/payment-history" element={<PaymentHistory />} />
+                
+                {/* KYC */}
+                <Route path="/kyc" element={<KYCVerification />} />
+                <Route path="/kyc/documents" element={<DocumentUpload />} />
+                <Route path="/kyc/status" element={<VerificationStatus />} />
+                
+                {/* Profile */}
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                
+                {/* Admin Routes */}
+                {user?.role === 'admin' && (
+                  <>
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/users" element={<UserManagement />} />
+                    <Route path="/admin/settings" element={<SystemSettings />} />
+                  </>
+                )}
+                
+                {/* 404 */}
+                <Route path="*" element={<Navigate to="/dashboard" />} />
+              </Routes>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
-};
+}
 
 export default App;

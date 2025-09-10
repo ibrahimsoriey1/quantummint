@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  quantummail:
+    build: .
+    container_name: quantummail-server
+    restart: unless-stopped
+    ports:
+      - "25:25"     # SMTP
+      - "587:587"   # SMTP Submission
+      - "465:465"   # SMTP Secure
+      - "143:143"   # IMAP
+      - "993:993"   # IMAP Secure
+      - "110:110"   # POP3
+      - "995:995"   # POP3 Secure
+      - "8080:8080" # Web Interface
+      - "8081:8081" # API
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/quantummail
+      - REDIS_URI=redis://redis:6379
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./certs:/app/certs
+      - ./keys:/app/keys
+      - ./.env:/app/.env
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - quantummail-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  mongo:
+    image: mongo:6.0
+    container_name: quantummail-mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=quantummail
+      - MONGO_INITDB_ROOT_PASSWORD=secure_password_change_this
+      - MONGO_INITDB_DATABASE=quantummail
+    volumes:
+      - mongo_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - quantummail-network
+    command: mongod --auth
+
+  redis:
+    image: redis:7-alpine
+    container_name: quantummail-redis
+    restart: unless-stopped
+    command: redis-server --requirepass secure_redis_password_change_this
+    volumes:
+      - redis_data:/data
+    networks:
+      - quantummail-network
+
+  # Optional: ClamAV for virus scanning
+  clamav:
+    image: clamav/clamav:stable
+    container_name: quantummail-clamav
+    restart: unless-stopped
+    volumes:
+      - clamav_data:/var/lib/clamav
+    networks:
+      - quantummail-network
+    healthcheck:
+      test: ["CMD", "clamdscan", "--version"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  # Optional: SpamAssassin for spam filtering
+  spamassassin:
+    image: instantlinux/spamassassin:latest
+    container_name: quantummail-spamassassin
+    restart: unless-stopped
+    networks:
+      - quantummail-network
+
+  # Optional: Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: quantummail-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - quantummail
+    networks:
+      - quantummail-network
+
+volumes:
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local
+  clamav_data:
+    driver: local
+
+networks:
+  quantummail-network:
+    driver: bridge

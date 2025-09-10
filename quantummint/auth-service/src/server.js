@@ -2,110 +2,104 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
-const morgan = require('morgan');
-const { redisClient } = require('./config/redis.config');
-const { connectToMessageQueue } = require('./config/rabbitmq.config');
-const logger = require('./utils/logger.util');
-const authRoutes = require('./routes/auth.routes');
-const userRoutes = require('./routes/user.routes');
-const adminRoutes = require('./routes/admin.routes');
-
-// Load environment variables
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-// Environment variables
-const {
-  PORT = 3001,
-  MONGODB_URI,
-  NODE_ENV = 'development'
-} = process.env;
+const logger = require('../../shared/utils/logger');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const twoFactorRoutes = require('./routes/twoFactor');
+const { errorHandler } = require('./middleware/errorHandler');
 
-// Create Express app
 const app = express();
+const PORT = process.env.AUTH_SERVICE_PORT || 3001;
 
-// Middleware
+// Security middleware
 app.use(helmet());
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3006',
+  credentials: true
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  }
+});
+app.use(limiter);
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Logging
-if (NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
-
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/admin', adminRoutes);
+// Request logging
+app.use(logger.requestMiddleware);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
+  res.json({
+    success: true,
+    message: 'Authentication service is healthy',
+    timestamp: new Date().toISOString(),
     service: 'auth-service',
-    timestamp: new Date().toISOString()
+    version: '1.0.0'
+  });
+});
+
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/2fa', twoFactorRoutes);
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Endpoint not found'
   });
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  logger.error(`Unhandled error: ${err.message}`);
-  
-  res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'An unexpected error occurred'
-    }
-  });
-});
+app.use(logger.errorMiddleware);
+app.use(errorHandler);
 
-// Connect to MongoDB
-mongoose.connect(MONGODB_URI)
-  .then(() => {
-    logger.info('Connected to MongoDB');
-    
-    // Connect to RabbitMQ
-    return connectToMessageQueue();
-  })
-  .then(() => {
-    logger.info('Connected to RabbitMQ');
-    
-    // Start server
-    app.listen(PORT, () => {
-      logger.info(`Auth service running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    logger.error(`Server initialization error: ${error.message}`);
-    process.exit(1);
-  });
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
-});
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  logger.error(`Uncaught Exception: ${error.message}`);
+// Database connection
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quantummint_auth', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  logger.info('Connected to MongoDB', { service: 'auth-service' });
+})
+.catch((error) => {
+  logger.error('MongoDB connection error', { error: error.message, service: 'auth-service' });
   process.exit(1);
 });
 
-// Handle SIGTERM
-process.on('SIGTERM', async () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  
-  // Close MongoDB connection
-  await mongoose.connection.close();
-  logger.info('MongoDB connection closed');
-  
-  // Close Redis connection
-  await redisClient.quit();
-  logger.info('Redis connection closed');
-  
-  process.exit(0);
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received, shutting down gracefully', { service: 'auth-service' });
+  mongoose.connection.close(() => {
+    logger.info('MongoDB connection closed', { service: 'auth-service' });
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  logger.info('SIGINT received, shutting down gracefully', { service: 'auth-service' });
+  mongoose.connection.close(() => {
+    logger.info('MongoDB connection closed', { service: 'auth-service' });
+    process.exit(0);
+  });
+});
+
+// Start server
+app.listen(PORT, () => {
+  logger.info(`Authentication service running on port ${PORT}`, { service: 'auth-service' });
 });
 
 module.exports = app;

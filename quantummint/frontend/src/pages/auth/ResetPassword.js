@@ -1,222 +1,178 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
-  Button,
+  Card,
+  CardContent,
   TextField,
+  Button,
   Typography,
-  InputAdornment,
-  IconButton,
-  Alert,
-  Paper
+  CircularProgress,
+  Alert
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { resetPassword, clearAuthError } from '../../store/slices/authSlice';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useAuth } from '../../contexts/AuthContext';
+
+const validationSchema = Yup.object({
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .matches(/(?=.*[a-z])/, 'Password must contain at least one lowercase letter')
+    .matches(/(?=.*[A-Z])/, 'Password must contain at least one uppercase letter')
+    .matches(/(?=.*\d)/, 'Password must contain at least one number')
+    .matches(/(?=.*[@$!%*?&])/, 'Password must contain at least one special character')
+    .required('Password is required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required('Confirm password is required')
+});
 
 const ResetPassword = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
-  const [token, setToken] = useState('');
-  
-  const dispatch = useDispatch();
+  const { token } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  const { loading, error, resetPasswordSuccess } = useSelector((state) => state.auth);
-  
-  // Extract token from URL query parameters
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const tokenParam = queryParams.get('token');
-    
-    if (tokenParam) {
-      setToken(tokenParam);
+  const { resetPassword } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const formik = useFormik({
+    initialValues: {
+      password: '',
+      confirmPassword: ''
+    },
+    validationSchema,
+    onSubmit: async(values) => {
+      setLoading(true);
+      setError('');
+
+      const result = await resetPassword(token, values.password);
+
+      if (result.success) {
+        setSuccess(true);
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
+      } else {
+        setError(result.error);
+      }
+
+      setLoading(false);
     }
-  }, [location.search]);
-  
-  // Redirect after successful password reset
-  useEffect(() => {
-    if (resetPasswordSuccess) {
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
-    }
-  }, [resetPasswordSuccess, navigate]);
-  
-  // Clear auth errors when component unmounts
-  useEffect(() => {
-    return () => {
-      dispatch(clearAuthError());
-    };
-  }, [dispatch]);
-  
-  const validateForm = () => {
-    const errors = {};
-    
-    if (!password) {
-      errors.password = 'Password is required';
-    } else if (password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
-    }
-    
-    if (!confirmPassword) {
-      errors.confirmPassword = 'Please confirm your password';
-    } else if (password !== confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-    
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-      dispatch(resetPassword({ token, password }));
-    }
-  };
-  
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-  
-  if (!token) {
+  });
+
+  if (success) {
     return (
       <Box
         sx={{
+          minHeight: '100vh',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          maxWidth: '450px',
-          mx: 'auto',
-          p: 3
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          p: 2
         }}
       >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography variant="h5" component="h1" align="center" gutterBottom>
-            Reset Password
-          </Typography>
-          
-          <Alert severity="error" sx={{ mb: 3 }}>
-            Invalid or missing reset token. Please request a new password reset link.
-          </Alert>
-          
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            component={Link}
-            to="/forgot-password"
-          >
-            Request New Reset Link
-          </Button>
-        </Paper>
+        <Card sx={{ maxWidth: 400, width: '100%' }}>
+          <CardContent sx={{ p: 4, textAlign: 'center' }}>
+            <Typography variant="h5" gutterBottom color="success.main">
+              Password Reset Successful!
+            </Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              Your password has been successfully reset.
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Redirecting to login page...
+            </Typography>
+          </CardContent>
+        </Card>
       </Box>
     );
   }
-  
+
   return (
     <Box
       sx={{
+        minHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
-        maxWidth: '450px',
-        mx: 'auto',
-        p: 3
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        p: 2
       }}
     >
-      <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-        <Typography variant="h5" component="h1" align="center" gutterBottom>
-          Reset Password
-        </Typography>
-        
-        <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 3 }}>
-          Enter your new password below
-        </Typography>
-        
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-        
-        {resetPasswordSuccess && (
-          <Alert severity="success" sx={{ mb: 3 }}>
-            Your password has been reset successfully. You will be redirected to the login page.
-          </Alert>
-        )}
-        
-        {!resetPasswordSuccess && (
-          <form onSubmit={handleSubmit}>
+      <Card sx={{ maxWidth: 400, width: '100%' }}>
+        <CardContent sx={{ p: 4 }}>
+          <Box textAlign="center" mb={3}>
+            <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+              Set New Password
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Enter your new password below
+            </Typography>
+          </Box>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <form onSubmit={formik.handleSubmit}>
             <TextField
+              fullWidth
+              id="password"
+              name="password"
               label="New Password"
-              type={showPassword ? 'text' : 'password'}
-              fullWidth
+              type="password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
               margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={!!formErrors.password}
-              helperText={formErrors.password}
-              disabled={loading}
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={handleTogglePasswordVisibility}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
+              autoComplete="new-password"
+              autoFocus
             />
-            
+
             <TextField
-              label="Confirm New Password"
-              type={showPassword ? 'text' : 'password'}
               fullWidth
+              id="confirmPassword"
+              name="confirmPassword"
+              label="Confirm New Password"
+              type="password"
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
               margin="normal"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              error={!!formErrors.confirmPassword}
-              helperText={formErrors.confirmPassword}
-              disabled={loading}
-              required
+              autoComplete="new-password"
             />
-            
+
             <Button
               type="submit"
-              variant="contained"
-              color="primary"
               fullWidth
+              variant="contained"
               size="large"
               disabled={loading}
-              sx={{ mt: 3, py: 1.5 }}
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
             >
-              {loading ? <LoadingSpinner size={24} /> : 'Reset Password'}
+              {loading ? <CircularProgress size={24} /> : 'Reset Password'}
             </Button>
+
+            <Box textAlign="center">
+              <Link
+                to="/login"
+                style={{ textDecoration: 'none', color: '#1976d2' }}
+              >
+                <Typography variant="body2">
+                  Back to Login
+                </Typography>
+              </Link>
+            </Box>
           </form>
-        )}
-        
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            Remember your password?{' '}
-            <Link to="/login" style={{ textDecoration: 'none' }}>
-              <Typography variant="body2" component="span" color="primary" fontWeight="medium">
-                Back to Login
-              </Typography>
-            </Link>
-          </Typography>
-        </Box>
-      </Paper>
+        </CardContent>
+      </Card>
     </Box>
   );
 };

@@ -1,6 +1,0 @@
-total 12
-drwxr-xr-x 2 root root   74 Aug 27 01:24 .
-drwxr-xr-x 4 root root   47 Aug 27 01:24 ..
--rw-r--r-- 1 root root 1358 Aug 27 01:24 AlertMessage.js
--rw-r--r-- 1 root root 1059 Aug 27 01:24 LoadingSpinner.js
--rw-r--r-- 1 root root 2368 Aug 27 01:24 PageTitle.js

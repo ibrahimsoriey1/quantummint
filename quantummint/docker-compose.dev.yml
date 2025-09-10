@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # Development overrides for docker-compose.yml
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./api-gateway/src:/app/src
+      - ./api-gateway/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./auth-service/src:/app/src
+      - ./auth-service/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev
+
+  money-generation:
+    build:
+      context: ./money-generation
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./money-generation/src:/app/src
+      - ./money-generation/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev
+
+  transaction-service:
+    build:
+      context: ./transaction-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./transaction-service/src:/app/src
+      - ./transaction-service/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev
+
+  payment-integration:
+    build:
+      context: ./payment-integration
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./payment-integration/src:/app/src
+      - ./payment-integration/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev
+
+  kyc-service:
+    build:
+      context: ./kyc-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./kyc-service/src:/app/src
+      - ./kyc-service/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      REACT_APP_API_URL: http://localhost:3000
+      REACT_APP_ENVIRONMENT: development
+      CHOKIDAR_USEPOLLING: true
+    command: npm start
+
+  domain-controller:
+    build:
+      context: ./domain-controller
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./domain-controller/src:/app/src
+      - ./domain-controller/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev
+
+  mail-server:
+    build:
+      context: ./mail-server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./mail-server/src:/app/src
+      - ./mail-server/package.json:/app/package.json
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev

@@ -1,7 +1,7 @@
 {
-  "name": "quantummint-transaction-service",
+  "name": "@quantummint/transaction-service",
   "version": "1.0.0",
-  "description": "Transaction service for QuantumMint digital money generation system",
+  "description": "Transaction service for QuantumMint platform",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -9,36 +9,38 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix"
   },
   "dependencies": {
-    "amqplib": "^0.10.9",
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
-    "express": "^4.21.2",
-    "express-validator": "^7.2.1",
     "helmet": "^7.0.0",
-    "ioredis": "^5.3.2",
-    "joi": "^17.9.2",
-    "jsonwebtoken": "^9.0.1",
-    "mongoose": "^7.8.7",
-    "morgan": "^1.10.0",
-    "redis": "^5.8.2",
-    "uuid": "^11.1.0",
-    "winston": "^3.17.0"
+    "express-rate-limit": "^6.10.0",
+    "dotenv": "^16.3.1",
+    "redis": "^4.6.7",
+    "amqplib": "^0.10.3",
+    "joi": "^17.11.0",
+    "winston": "^3.10.0",
+    "axios": "^1.5.0",
+    "uuid": "^9.0.0",
+    "decimal.js": "^10.4.3"
   },
   "devDependencies": {
-    "eslint": "^9.34.0",
-    "jest": "^29.7.0",
-    "nodemon": "^3.1.10",
-    "supertest": "^6.3.4"
+    "nodemon": "^3.0.1",
+    "jest": "^29.5.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.39.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-plugin-jest": "^27.2.1"
   },
-  "engines": {
-    "node": ">=16.0.0"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "keywords": [
+    "transactions",
+    "payments",
+    "transfers",
+    "balance"
+  ],
+  "author": "NinjaTech AI",
+  "license": "MIT"
 }

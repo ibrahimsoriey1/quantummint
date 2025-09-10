@@ -1,299 +1,302 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
-  Button,
+  Card,
+  CardContent,
   TextField,
+  Button,
   Typography,
-  InputAdornment,
-  IconButton,
-  Alert,
-  Paper,
-  Grid,
-  Divider,
+  FormControlLabel,
   Checkbox,
-  FormControlLabel
+  Divider,
+  CircularProgress,
+  Alert,
+  Grid
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { register, clearAuthError } from '../../store/slices/authSlice';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useAuth } from '../../contexts/AuthContext';
+
+const validationSchema = Yup.object({
+  firstName: Yup.string()
+    .min(2, 'First name must be at least 2 characters')
+    .required('First name is required'),
+  lastName: Yup.string()
+    .min(2, 'Last name must be at least 2 characters')
+    .required('Last name is required'),
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  phoneNumber: Yup.string()
+    .matches(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number')
+    .required('Phone number is required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .matches(/(?=.*[a-z])/, 'Password must contain at least one lowercase letter')
+    .matches(/(?=.*[A-Z])/, 'Password must contain at least one uppercase letter')
+    .matches(/(?=.*\d)/, 'Password must contain at least one number')
+    .matches(/(?=.*[@$!%*?&])/, 'Password must contain at least one special character')
+    .required('Password is required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required('Confirm password is required'),
+  agreeToTerms: Yup.boolean()
+    .oneOf([true], 'You must agree to the terms and conditions')
+});
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeToTerms: false
-  });
-  
-  const [showPassword, setShowPassword] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
-  
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  const { loading, error, isAuthenticated, registrationSuccess } = useSelector((state) => state.auth);
-  
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
+  const { register } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      password: '',
+      confirmPassword: '',
+      agreeToTerms: false
+    },
+    validationSchema,
+    onSubmit: async(values) => {
+      setLoading(true);
+      setError('');
+
+      const result = await register({
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        password: values.password
+      });
+
+      if (result.success) {
+        setSuccess(true);
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
+      } else {
+        setError(result.error);
+      }
+
+      setLoading(false);
     }
-  }, [isAuthenticated, navigate]);
-  
-  // Redirect to email verification page after successful registration
-  useEffect(() => {
-    if (registrationSuccess) {
-      navigate('/verify-email', { state: { email: formData.email } });
-    }
-  }, [registrationSuccess, navigate, formData.email]);
-  
-  // Clear auth errors when component unmounts
-  useEffect(() => {
-    return () => {
-      dispatch(clearAuthError());
-    };
-  }, [dispatch]);
-  
-  const validateForm = () => {
-    const errors = {};
-    
-    if (!formData.firstName.trim()) {
-      errors.firstName = 'First name is required';
-    }
-    
-    if (!formData.lastName.trim()) {
-      errors.lastName = 'Last name is required';
-    }
-    
-    if (!formData.email) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'Email is invalid';
-    }
-    
-    if (!formData.password) {
-      errors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
-    }
-    
-    if (!formData.confirmPassword) {
-      errors.confirmPassword = 'Please confirm your password';
-    } else if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-    
-    if (!formData.agreeToTerms) {
-      errors.agreeToTerms = 'You must agree to the terms and conditions';
-    }
-    
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-  
-  const handleChange = (e) => {
-    const { name, value, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: name === 'agreeToTerms' ? checked : value
-    });
-  };
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-      const { firstName, lastName, email, password } = formData;
-      dispatch(register({ firstName, lastName, email, password }));
-    }
-  };
-  
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-  
+  });
+
+  if (success) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          p: 2
+        }}
+      >
+        <Card sx={{ maxWidth: 400, width: '100%' }}>
+          <CardContent sx={{ p: 4, textAlign: 'center' }}>
+            <Typography variant="h5" gutterBottom color="success.main">
+              Registration Successful!
+            </Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              Please check your email to verify your account before signing in.
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Redirecting to login page...
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
+        minHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
-        maxWidth: '500px',
-        mx: 'auto',
-        p: 3
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        p: 2
       }}
     >
-      <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-        <Typography variant="h4" component="h1" align="center" gutterBottom>
-          Create Account
-        </Typography>
-        
-        <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 3 }}>
-          Join QuantumMint and start generating digital money
-        </Typography>
-        
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-        
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="First Name"
-                name="firstName"
-                fullWidth
-                value={formData.firstName}
-                onChange={handleChange}
-                error={!!formErrors.firstName}
-                helperText={formErrors.firstName}
-                disabled={loading}
-                required
-              />
+      <Card sx={{ maxWidth: 500, width: '100%' }}>
+        <CardContent sx={{ p: 4 }}>
+          <Box textAlign="center" mb={3}>
+            <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+              QuantumMint
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Create your account
+            </Typography>
+          </Box>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <form onSubmit={formik.handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  id="firstName"
+                  name="firstName"
+                  label="First Name"
+                  value={formik.values.firstName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+                  helperText={formik.touched.firstName && formik.errors.firstName}
+                  autoComplete="given-name"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  id="lastName"
+                  name="lastName"
+                  label="Last Name"
+                  value={formik.values.lastName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+                  helperText={formik.touched.lastName && formik.errors.lastName}
+                  autoComplete="family-name"
+                />
+              </Grid>
             </Grid>
-            
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Last Name"
-                name="lastName"
-                fullWidth
-                value={formData.lastName}
-                onChange={handleChange}
-                error={!!formErrors.lastName}
-                helperText={formErrors.lastName}
-                disabled={loading}
-                required
-              />
-            </Grid>
-          </Grid>
-          
-          <TextField
-            label="Email Address"
-            name="email"
-            type="email"
-            fullWidth
-            margin="normal"
-            value={formData.email}
-            onChange={handleChange}
-            error={!!formErrors.email}
-            helperText={formErrors.email}
-            disabled={loading}
-            required
-          />
-          
-          <TextField
-            label="Password"
-            name="password"
-            type={showPassword ? 'text' : 'password'}
-            fullWidth
-            margin="normal"
-            value={formData.password}
-            onChange={handleChange}
-            error={!!formErrors.password}
-            helperText={formErrors.password}
-            disabled={loading}
-            required
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleTogglePasswordVisibility}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-          />
-          
-          <TextField
-            label="Confirm Password"
-            name="confirmPassword"
-            type={showPassword ? 'text' : 'password'}
-            fullWidth
-            margin="normal"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            error={!!formErrors.confirmPassword}
-            helperText={formErrors.confirmPassword}
-            disabled={loading}
-            required
-          />
-          
-          <Box sx={{ mt: 2 }}>
+
+            <TextField
+              fullWidth
+              id="email"
+              name="email"
+              label="Email Address"
+              type="email"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email}
+              margin="normal"
+              autoComplete="email"
+            />
+
+            <TextField
+              fullWidth
+              id="phoneNumber"
+              name="phoneNumber"
+              label="Phone Number"
+              value={formik.values.phoneNumber}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
+              helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
+              margin="normal"
+              autoComplete="tel"
+            />
+
+            <TextField
+              fullWidth
+              id="password"
+              name="password"
+              label="Password"
+              type="password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
+              margin="normal"
+              autoComplete="new-password"
+            />
+
+            <TextField
+              fullWidth
+              id="confirmPassword"
+              name="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+              margin="normal"
+              autoComplete="new-password"
+            />
+
             <FormControlLabel
               control={
                 <Checkbox
+                  id="agreeToTerms"
                   name="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onChange={handleChange}
+                  checked={formik.values.agreeToTerms}
+                  onChange={formik.handleChange}
                   color="primary"
-                  disabled={loading}
                 />
               }
               label={
                 <Typography variant="body2">
                   I agree to the{' '}
-                  <Link to="/terms" style={{ textDecoration: 'none' }}>
-                    <Typography variant="body2" component="span" color="primary">
-                      Terms of Service
-                    </Typography>
+                  <Link to="/terms" style={{ color: '#1976d2' }}>
+                    Terms and Conditions
                   </Link>{' '}
                   and{' '}
-                  <Link to="/privacy" style={{ textDecoration: 'none' }}>
-                    <Typography variant="body2" component="span" color="primary">
-                      Privacy Policy
-                    </Typography>
+                  <Link to="/privacy" style={{ color: '#1976d2' }}>
+                    Privacy Policy
                   </Link>
                 </Typography>
               }
+              sx={{ mt: 2 }}
             />
-            {formErrors.agreeToTerms && (
-              <Typography variant="caption" color="error">
-                {formErrors.agreeToTerms}
+            {formik.touched.agreeToTerms && formik.errors.agreeToTerms && (
+              <Typography variant="caption" color="error" display="block" sx={{ mt: 1 }}>
+                {formik.errors.agreeToTerms}
               </Typography>
             )}
-          </Box>
-          
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            size="large"
-            disabled={loading}
-            sx={{ mt: 3, py: 1.5 }}
-          >
-            {loading ? <LoadingSpinner size={24} /> : 'Sign Up'}
-          </Button>
-        </form>
-        
-        <Divider sx={{ my: 3 }}>
-          <Typography variant="body2" color="text.secondary">
-            OR
-          </Typography>
-        </Divider>
-        
-        <Grid container justifyContent="center">
-          <Grid item>
-            <Typography variant="body2" color="text.secondary">
-              Already have an account?{' '}
-              <Link to="/login" style={{ textDecoration: 'none' }}>
-                <Typography variant="body2" component="span" color="primary" fontWeight="medium">
-                  Sign In
-                </Typography>
-              </Link>
-            </Typography>
-          </Grid>
-        </Grid>
-      </Paper>
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              disabled={loading}
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
+            >
+              {loading ? <CircularProgress size={24} /> : 'Create Account'}
+            </Button>
+
+            <Divider sx={{ my: 3 }}>
+              <Typography variant="body2" color="text.secondary">
+                OR
+              </Typography>
+            </Divider>
+
+            <Box textAlign="center">
+              <Typography variant="body2" color="text.secondary">
+                Already have an account?{' '}
+                <Link
+                  to="/login"
+                  style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 500 }}
+                >
+                  Sign in
+                </Link>
+              </Typography>
+            </Box>
+          </form>
+        </CardContent>
+      </Card>
     </Box>
   );
 };

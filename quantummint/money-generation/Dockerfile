@@ -3,14 +3,10 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm install
+RUN npm ci --only=production
 
 COPY . .
 
-# Create logs directory
-RUN mkdir -p logs
+EXPOSE 3005
 
-EXPOSE 3002
-
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]

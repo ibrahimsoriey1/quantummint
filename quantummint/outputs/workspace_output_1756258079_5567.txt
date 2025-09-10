@@ -1,4 +1,0 @@
-total 16
-drwxr-xr-x 2 root root    26 Aug 27 01:25 .
-drwxr-xr-x 8 root root   156 Aug 27 01:16 ..
--rw-r--r-- 1 root root 16054 Aug 27 01:25 Dashboard.js
